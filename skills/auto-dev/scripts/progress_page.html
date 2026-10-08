@@ -1,0 +1,1398 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auto Dev 任务进度</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #101513;
+      --ink: #e8eee9;
+      --muted: #a7b0a9;
+      --line: #394740;
+      --line-soft: #28332e;
+      --done: #59c8a7;
+      --done-soft: #143b30;
+      --active: #8ab4ff;
+      --active-soft: #172f55;
+      --paused: #e5b367;
+      --paused-soft: #473416;
+      --blocked: #ff897f;
+      --blocked-soft: #512521;
+      --slate: #abb6af;
+      --slate-soft: #2a3731;
+      --main-soft: #18211d;
+      --focus-line: #a9c5ff;
+      --white: #171e1b;
+      --proof: #68d2ae;
+      --proof-soft: #153c30;
+      --unknown: #e5c98f;
+      --unknown-soft: #463921;
+      --overlay-surface: rgba(23,30,27,.82);
+      --raised-shadow: rgba(0,0,0,.28);
+      --execution-border: #38564a;
+      --execution-review: #221c12;
+      --execution-blocked: #271817;
+      --status-paused-border: #76592e;
+      --status-blocked-border: #79423e;
+      --metric-surface: rgba(24,33,29,.74);
+      --node-root-surface: rgba(28,39,34,.76);
+      --node-current-surface: rgba(23,47,85,.72);
+      --node-current-paused-surface: rgba(71,52,22,.76);
+      --checkpoint-active-border: #4b6b9f;
+      --checkpoint-done-border: #3a765f;
+      --checkpoint-paused-border: #76592e;
+      --checkpoint-blocked-border: #79423e;
+      --proof-done-border: #3d7a62;
+      --node-done: #a9b4ad;
+      --review-surface: #221c12;
+    }
+    html[data-theme="light"] {
+      color-scheme: light;
+      --paper: #f3f0ea;
+      --ink: #1f2522;
+      --muted: #6f7772;
+      --line: #d2d0c9;
+      --line-soft: #e4e1d9;
+      --done: #0f766e;
+      --done-soft: #d9eee9;
+      --active: #2563eb;
+      --active-soft: #e0eaff;
+      --paused: #a15c07;
+      --paused-soft: #f6e6c8;
+      --blocked: #b42318;
+      --blocked-soft: #f7dfdc;
+      --slate: #69737a;
+      --slate-soft: #e8eaeb;
+      --main-soft: #eef1eb;
+      --focus-line: #7398e8;
+      --white: #fbfaf7;
+      --proof: #176b4d;
+      --proof-soft: #dcece4;
+      --unknown: #765c34;
+      --unknown-soft: #eee7d9;
+      --overlay-surface: rgba(251,250,247,.7);
+      --raised-shadow: rgba(31,37,34,.05);
+      --execution-border: #c5d4cc;
+      --execution-review: #fffaf0;
+      --execution-blocked: #fff7f5;
+      --status-paused-border: #dec69d;
+      --status-blocked-border: #dfaea8;
+      --metric-surface: rgba(243,240,234,.5);
+      --node-root-surface: rgba(238,241,235,.42);
+      --node-current-surface: rgba(224,234,255,.45);
+      --node-current-paused-surface: rgba(246,230,200,.48);
+      --checkpoint-active-border: #9cb5e6;
+      --checkpoint-done-border: #9fc9ba;
+      --checkpoint-paused-border: #d5bd91;
+      --checkpoint-blocked-border: #dfaea8;
+      --proof-done-border: #a9cdb9;
+      --node-done: #56605a;
+      --review-surface: #fffaf0;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Avenir Next", "PingFang SC", "Helvetica Neue", sans-serif;
+      letter-spacing: 0;
+    }
+    main { width: min(100% - 40px, 760px); margin: 0 auto; padding: 30px 0 52px; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .eyebrow { margin: 0 0 8px; color: var(--muted); font: 600 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 0; font: 700 28px/1.05 Georgia, "Songti SC", serif; letter-spacing: 0; }
+    .header-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .language-switch { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 7px; background: var(--overlay-surface); }
+    .language-button { min-width: 58px; min-height: 34px; padding: 6px 10px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; cursor: pointer; }
+    .language-button:hover { color: var(--ink); background: var(--slate-soft); }
+    .language-button[aria-pressed="true"] { color: var(--ink); background: var(--white); box-shadow: 0 1px 3px var(--raised-shadow); }
+    .language-button:focus-visible { outline: 3px solid var(--active-soft); outline-offset: 2px; }
+    .theme-toggle { min-height: 32px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: var(--overlay-surface); font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; cursor: pointer; }
+    .theme-toggle:hover { background: var(--slate-soft); }
+    .theme-toggle[aria-pressed="true"] { border-color: var(--focus-line); color: var(--active); }
+    .theme-toggle:focus-visible { outline: 3px solid var(--active-soft); outline-offset: 2px; }
+    .connection { display: inline-flex; align-items: center; gap: 7px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--overlay-surface); font-size: 11px; white-space: nowrap; }
+    .connection::before { width: 7px; height: 7px; border-radius: 50%; background: var(--slate); content: ""; }
+    .connection.live::before { background: var(--done); box-shadow: 0 0 0 4px var(--done-soft); }
+    .connection.stale::before { background: var(--blocked); }
+    .connection.review::before { background: var(--paused); box-shadow: 0 0 0 4px var(--paused-soft); }
+    .project-switcher { display: flex; align-items: center; gap: 9px; min-width: 0; margin-top: 20px; color: var(--muted); font-size: 11px; }
+    .project-switcher-label { flex: 0 0 auto; color: var(--muted); }
+    .project-context-name { min-width: 0; overflow: hidden; color: var(--ink); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .context-picker { display: inline-flex; min-width: 0; margin-left: auto; }
+    .context-picker select { max-width: 290px; min-height: 30px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: var(--white); font: 650 11px/1.2 "Avenir Next", "PingFang SC", sans-serif; }
+    .goal { margin-top: 14px; padding: 14px 0 16px; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line); }
+    .goal-label { color: var(--muted); font-size: 11px; }
+    .goal-text { display: -webkit-box; max-width: 62ch; margin: 5px 0 0; overflow: hidden; color: var(--ink); font-size: 16px; font-weight: 620; line-height: 1.42; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+    .meta { display: none; }
+    .meta-item { display: grid; grid-template-columns: auto auto; column-gap: 6px; align-items: baseline; font: 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .meta-label { color: var(--muted); }
+    .meta-item strong { color: var(--ink); font-weight: 700; }
+    .meta-help { grid-column: 1 / -1; color: var(--muted); font: 10px/1.2 "Avenir Next", "PingFang SC", "Helvetica Neue", sans-serif; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 13px; margin-top: 14px; color: var(--muted); font: 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .legend i { width: 8px; height: 8px; border: 1px solid var(--slate); border-radius: 50%; background: var(--paper); }
+    .legend .done i { border-color: var(--done); background: var(--done); }
+    .legend .reverification_required i { border-color: var(--paused); background: var(--paused); }
+    .legend .active i { border-color: var(--active); background: var(--active); }
+    .legend .paused i { border-color: var(--paused); background: var(--paused); }
+    .legend .planned i { border-color: var(--slate); background: var(--paper); }
+    .legend .blocked i { border-color: var(--blocked); background: var(--blocked); }
+    .legend .superseded i { border-color: var(--slate); background: var(--slate-soft); }
+    .execution-section { margin-top: 20px; }
+    .execution-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 18px; padding: 16px 17px 14px; border: 1px solid var(--execution-border); border-left: 4px solid var(--active); border-radius: 6px; background: var(--white); box-shadow: 0 8px 24px var(--raised-shadow); }
+    .execution-card.review { border-left-color: var(--paused); background: var(--execution-review); }
+    .execution-card.blocked { border-left-color: var(--blocked); background: var(--execution-blocked); }
+    .execution-card.paused { border-left-color: var(--paused); background: var(--execution-review); }
+    .execution-card.idle { border-left-color: var(--slate); background: var(--main-soft); }
+    .execution-copy { min-width: 0; }
+    .execution-eyebrow { margin: 0; color: var(--muted); font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .05em; text-transform: uppercase; }
+    .execution-title { margin: 5px 0 0; overflow-wrap: anywhere; color: var(--ink); font: 700 21px/1.18 Georgia, "Songti SC", serif; }
+    .execution-outcome { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.42; }
+    .execution-next { margin: 9px 0 0; color: var(--ink); font-size: 12px; font-weight: 590; line-height: 1.42; }
+    .execution-status { align-self: start; padding: 4px 7px; border: 1px solid var(--line); border-radius: 3px; color: var(--active); background: var(--active-soft); font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .execution-card.review .execution-status, .execution-card.paused .execution-status { color: var(--paused); background: var(--paused-soft); border-color: var(--status-paused-border); }
+    .execution-card.blocked .execution-status { color: var(--blocked); background: var(--blocked-soft); border-color: var(--status-blocked-border); }
+    .execution-card.idle .execution-status { color: var(--slate); background: var(--slate-soft); }
+    .execution-metrics { display: flex; flex-wrap: wrap; grid-column: 1 / -1; gap: 7px; }
+    .execution-metrics span { display: inline-flex; padding: 4px 6px; border: 1px solid var(--line-soft); border-radius: 3px; color: var(--muted); background: var(--metric-surface); font: 600 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .execution-details { grid-column: 1 / -1; margin: 1px 0 0; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+    .execution-details > summary { position: relative; padding-right: 16px; font-size: 11px; font-weight: 650; }
+    .execution-details > summary::after, .project-overview > summary::after, .overview-section > summary::after { position: absolute; top: 50%; right: 3px; width: 6px; height: 6px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: translateY(-65%) rotate(45deg); transition: transform .16s ease, border-color .16s ease; content: ""; }
+    .execution-details[open] > summary::after, .project-overview[open] > summary::after, .overview-section[open] > summary::after { border-color: var(--active); transform: translateY(-22%) rotate(225deg); }
+    .execution-records { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; margin: 9px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .execution-records dt { color: var(--muted); }
+    .execution-records dd { min-width: 0; margin: 0; overflow-wrap: anywhere; color: var(--ink); }
+    .intake-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; margin-top: 10px; padding: 10px 12px; border-left: 3px solid var(--slate); background: var(--main-soft); }
+    .intake-panel.authorized { border-left-color: var(--done); background: var(--done-soft); }
+    .intake-panel.waiting { border-left-color: var(--paused); background: var(--paused-soft); }
+    .intake-panel.pending { border-left-color: var(--blocked); background: var(--blocked-soft); }
+    .intake-copy { min-width: 0; }
+    .intake-copy h2 { margin: 0; font-size: 12px; }
+    .intake-copy p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; overflow-wrap: anywhere; }
+    .intake-state { align-self: center; padding: 4px 6px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); background: var(--white); font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .execution-timeline-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-top: 22px; }
+    .execution-timeline-title { margin: 0; color: var(--ink); font: 700 16px/1.2 Georgia, "Songti SC", serif; }
+    .hierarchy-list { margin: 12px 0 0; padding: 0; list-style: none; }
+    .hierarchy-row { position: relative; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 9px; align-items: start; padding: 9px 0 9px calc(var(--outcome-depth, 0) * 18px); border-bottom: 1px solid var(--line-soft); }
+    .hierarchy-row:last-child { border-bottom: 0; }
+    .hierarchy-row::before { width: 7px; height: 7px; margin-top: 5px; border: 1px solid var(--slate); border-radius: 50%; background: var(--paper); content: ""; }
+    .hierarchy-row[data-status="active"]::before, .hierarchy-row[data-status="completed"]::before { border-color: var(--done); background: var(--done); }
+    .hierarchy-row[data-status="blocked"]::before { border-color: var(--blocked); background: var(--blocked); }
+    .hierarchy-row[data-status="proposed"]::before { border-color: var(--active); background: var(--active-soft); }
+    .hierarchy-row h3 { margin: 0; font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; }
+    .hierarchy-row p { margin: 3px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+    .row-status { padding: 3px 5px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); background: var(--white); font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .row-relations { grid-column: 2 / -1; color: var(--muted); font: 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    .project-overview { margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--line); }
+    .project-overview > summary { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 2px 18px 3px 0; }
+    .project-overview-title { color: var(--ink); font: 700 15px/1.2 Georgia, "Songti SC", serif; }
+    .project-overview-summary { min-width: 0; overflow: hidden; color: var(--muted); font: 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+    .project-overview-content { margin-top: 14px; padding: 0 0 2px 12px; border-left: 2px solid var(--line-soft); }
+    .project-overview-description { max-width: 68ch; margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .overview-section { margin: 0; border-top: 1px solid var(--line-soft); }
+    .overview-section:last-child { border-bottom: 1px solid var(--line-soft); }
+    .overview-section > summary { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 11px 18px 11px 0; }
+    .overview-section-title { color: var(--ink); font-size: 12px; font-weight: 700; }
+    .overview-section-count { color: var(--muted); font: 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .overview-section > :not(summary) { margin-top: 0; padding: 0 0 10px; }
+    .capability-list, .activity-list { margin-top: 0; }
+    .capability-row, .activity-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+    .capability-row:last-child, .activity-row:last-child { border-bottom: 0; }
+    .capability-row h3, .activity-row h3 { margin: 0; font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; }
+    .capability-row p, .activity-row p { margin: 3px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+    .row-meta { color: var(--muted); font: 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; white-space: nowrap; }
+    .empty-plane { padding: 11px 0 2px; color: var(--muted); font-size: 12px; }
+    .outcome-overview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin-top: 14px; border: 1px solid var(--line); background: var(--line); }
+    .outcome-metric { min-width: 0; padding: 11px 12px; background: var(--white); }
+    .outcome-metric span { display: block; color: var(--muted); font-size: 10px; line-height: 1.25; }
+    .outcome-metric strong { display: block; margin-top: 4px; color: var(--ink); font: 700 17px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .timeline { position: relative; margin-top: 20px; padding-bottom: 8px; }
+    .timeline::before { position: absolute; top: 9px; bottom: 18px; left: 9px; width: 1px; background: var(--line); content: ""; }
+    .node { position: relative; display: grid; grid-template-columns: 20px 1fr; gap: 13px; margin: 0 0 17px var(--indent, 0px); }
+    .node[data-depth="0"] { margin-bottom: 26px; }
+    .node[data-depth]:not([data-depth="0"])::before { position: absolute; top: 10px; left: -21px; width: 20px; border-top: 1px solid var(--line); content: ""; }
+    .node-dot { position: relative; z-index: 1; display: grid; place-items: center; width: 19px; height: 19px; border: 4px solid var(--paper); border-radius: 50%; background: var(--slate); box-shadow: 0 0 0 1px var(--line); color: var(--white); font: 700 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .node.done .node-dot { background: var(--done); box-shadow: 0 0 0 1px var(--done); }
+    .node.done .node-dot::after { content: "ok"; }
+    .node.reverification_required .node-dot { background: var(--paused); box-shadow: 0 0 0 1px var(--paused), 0 0 0 5px var(--paused-soft); }
+    .node.reverification_required .node-dot::after { content: "!"; }
+    .node.active .node-dot { background: var(--active); box-shadow: 0 0 0 1px var(--active), 0 0 0 5px var(--active-soft); }
+    .node.active .node-dot::after { content: ">"; }
+    .node.paused .node-dot { background: var(--paused); box-shadow: 0 0 0 1px var(--paused), 0 0 0 5px var(--paused-soft); }
+    .node.paused .node-dot::after { content: "||"; }
+    .node.planned .node-dot { background: var(--paper); }
+    .node.blocked .node-dot { background: var(--blocked); box-shadow: 0 0 0 1px var(--blocked); }
+    .node.blocked .node-dot::after { content: "!"; }
+    .node.superseded .node-dot { background: var(--paper); box-shadow: 0 0 0 1px var(--slate); color: var(--slate); }
+    .node.superseded .node-dot::after { content: "-"; }
+    .node-body { min-width: 0; padding-top: 1px; }
+    .node[data-depth="0"] .node-body { padding: 10px 11px 3px; border-top: 1px solid var(--line); background: var(--node-root-surface); }
+    .node[data-depth]:not([data-depth="0"]) .node-body { padding-left: 12px; border-left: 2px solid var(--line-soft); }
+    .node.is-ancestor .node-body { border-left-color: var(--active-soft); }
+    .node.is-current .node-body { margin: -7px 0; padding: 8px 12px; border-left: 3px solid var(--active); background: var(--node-current-surface); }
+    .node.is-current.paused .node-body { border-left-color: var(--paused); background: var(--node-current-paused-surface); }
+    .node-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 9px; }
+    .node-context { display: inline-flex; align-items: baseline; gap: 7px; }
+    .node-code { color: var(--muted); font: 600 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .node[data-depth="0"] .node-code { color: var(--ink); font-size: 14px; font-weight: 800; }
+    .node-title { min-width: 0; display: -webkit-box; overflow: hidden; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 3; font-size: 13px; line-height: 1.38; font-weight: 560; }
+    .node[data-depth="0"] .node-title { font-size: 15px; font-weight: 700; }
+    .node-kind { padding: 3px 5px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .node[data-depth="0"] .node-kind { border-color: var(--done-soft); color: var(--done); background: var(--white); }
+    .node-status { flex: 0 0 auto; color: var(--muted); font: 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .node-result { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 8px; margin-top: 7px; }
+    .milestone-checkpoint-chain { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 8px; }
+    .milestone-checkpoint-point { display: inline-grid; min-width: 0; grid-template-columns: auto auto; align-items: center; gap: 5px; padding: 3px 5px; border: 1px solid var(--line); border-radius: 3px; background: var(--white); font: 600 9px/1.15 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .milestone-checkpoint-point.before { border-color: var(--checkpoint-active-border); color: var(--active); background: var(--active-soft); }
+    .milestone-checkpoint-point.after { border-color: var(--checkpoint-done-border); color: var(--done); background: var(--done-soft); }
+    .milestone-checkpoint-point[data-status="pending"] { border-color: var(--checkpoint-paused-border); color: var(--paused); background: var(--paused-soft); }
+    .milestone-checkpoint-point[data-status="missing_ref"], .milestone-checkpoint-point[data-status="mismatched_ref"] { border-color: var(--checkpoint-blocked-border); color: var(--blocked); background: var(--blocked-soft); }
+    .milestone-checkpoint-label { white-space: nowrap; }
+    .milestone-checkpoint-point code { color: inherit; font: 700 9px/1.15 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .milestone-checkpoint-link { position: relative; flex: 0 0 13px; width: 13px; height: 1px; background: var(--line); }
+    .milestone-checkpoint-link::after { position: absolute; top: -2px; right: 0; width: 4px; height: 4px; border-top: 1px solid var(--muted); border-right: 1px solid var(--muted); transform: rotate(45deg); content: ""; }
+    .milestone-checkpoint-node { color: var(--ink); font: 700 9px/1.15 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .outcome-kind, .proof-state { padding: 3px 5px; border: 1px solid var(--line); border-radius: 3px; font: 600 9px/1.15 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .outcome-kind { color: var(--muted); background: var(--white); }
+    .outcome-primary { min-width: 0; overflow-wrap: anywhere; color: var(--ink); font-size: 12px; line-height: 1.4; }
+    .proof-state.proved { border-color: var(--proof-done-border); color: var(--proof); background: var(--proof-soft); }
+    .proof-state.failed { border-color: var(--checkpoint-blocked-border); color: var(--blocked); background: var(--blocked-soft); }
+    .proof-state.pending { border-color: var(--checkpoint-paused-border); color: var(--unknown); background: var(--unknown-soft); }
+    .proof-state.legacy { color: var(--slate); background: var(--slate-soft); }
+    .node.done .node-title { color: var(--node-done); }
+    .node.done .node-status { color: var(--done); }
+    .node.reverification_required .node-status { color: var(--paused); }
+    .node.active .node-status { color: var(--active); }
+    .node.paused .node-status { color: var(--paused); }
+    .node.planned .node-status { color: var(--slate); }
+    .node.blocked .node-status { color: var(--blocked); }
+    .node.superseded .node-title { color: var(--muted); text-decoration: line-through; }
+    details { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    summary { cursor: pointer; color: var(--ink); list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    .node-details { min-width: 0; margin: 0; }
+    .node-details > summary.node-title { position: relative; display: -webkit-box; min-height: 0; padding: 0 18px 0 0; border: 0; border-radius: 3px; background: transparent; cursor: pointer; }
+    .node-details > summary.node-title::before { display: none; }
+    .node-details > summary.node-title::after { position: absolute; top: 7px; right: 3px; width: 6px; height: 6px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); transition: transform .16s ease, border-color .16s ease; content: ""; }
+    .node-details[open] > summary.node-title::after { border-color: var(--active); transform: translateY(3px) rotate(225deg); }
+    .node-details > summary.node-title:hover { color: var(--active); }
+    .node-details > summary.node-title:focus-visible { outline: 3px solid var(--active-soft); outline-offset: 3px; }
+    .node-details > :not(summary) { margin-top: 8px; padding: 7px 0 2px 12px; border-left: 2px solid var(--active-soft); }
+    .detail-group { margin-top: 11px; }
+    .detail-group h4 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 0 5px; color: var(--ink); font-size: 11px; font-weight: 650; }
+    .detail-group h4 span { color: var(--muted); font: 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .detail-list { margin: 0; padding-left: 17px; }
+    .detail-list li { margin: 5px 0; overflow-wrap: anywhere; }
+    .detail-list li::marker { color: var(--active); }
+    .detail-ref { color: var(--ink); font-weight: 600; }
+    .detail-meta { color: var(--muted); font: 10px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .proof-line { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 7px; align-items: baseline; }
+    .proof-mark { color: var(--slate); font: 700 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .proof-line.passed .proof-mark { color: var(--proof); }
+    .proof-line.failed .proof-mark { color: var(--blocked); }
+    .performance-meta { display: block; margin-top: 3px; overflow-wrap: anywhere; }
+    .direct-outcome { padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .direct-outcome h2 { margin: 0 0 8px; font-size: 14px; }
+    .direct-outcome p { margin: 0; font-size: 13px; line-height: 1.45; }
+    .unattributed, .gaps, .impact-summary, .diagnostic-summary, .product-review-summary { margin-top: 16px; padding-top: 19px; border-top: 1px solid var(--line); }
+    .product-review-receipt { padding: 11px 12px; border-left: 3px solid var(--paused); color: var(--ink); background: var(--review-surface); font-size: 12px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .section-label { margin: 0 0 10px; color: var(--muted); font: 600 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; }
+    .gap { display: grid; grid-template-columns: 8px 1fr; gap: 9px; margin: 9px 0; font-size: 13px; line-height: 1.4; }
+    .gap::before { width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: var(--paused); content: ""; }
+    .gap.blocking::before { background: var(--blocked); }
+    .gap-meta { display: block; margin-top: 3px; color: var(--muted); font: 10px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .unattributed .gap::before { background: var(--blocked); }
+    .checkpoint { margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .checkpoint strong { color: var(--ink); }
+    .archive-points { margin-top: 16px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .archive-point { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 9px; padding: 9px 0; border-top: 1px solid var(--line-soft); }
+    .archive-point::before { width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: var(--done); content: ""; }
+    .archive-point.untracked::before, .archive-point.mismatched_ref::before { background: var(--paused); }
+    .archive-point.missing_ref::before { background: var(--blocked); }
+    .archive-point-title { color: var(--ink); font-size: 12px; font-weight: 650; line-height: 1.4; overflow-wrap: anywhere; }
+    .archive-point-meta { display: block; margin-top: 3px; color: var(--muted); font: 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    .dependency-panel { margin-top: 28px; padding-top: 17px; border-top: 1px solid var(--line); }
+    .dependency-panel > summary { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 4px 18px 4px 0; font: 650 12px/1.35 "Avenir Next", "PingFang SC", "Helvetica Neue", sans-serif; }
+    .dependency-panel > summary::after { position: absolute; right: 4px; width: 7px; height: 7px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); transition: transform .16s ease, border-color .16s ease; content: ""; }
+    .dependency-panel[open] > summary::after { border-color: var(--active); transform: translateY(3px) rotate(225deg); }
+    .dependency-panel > summary:hover { color: var(--active); }
+    .dependency-panel > summary:focus-visible { outline: 3px solid var(--active-soft); outline-offset: 3px; }
+    .dependency-count { color: var(--muted); font: 600 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .dependency-content { margin-top: 13px; padding-left: 12px; border-left: 2px solid var(--line-soft); }
+    .dependency-group { margin-top: 18px; }
+    .dependency-group:first-child { margin-top: 0; }
+    .dependency-group h3 { margin: 0 0 7px; color: var(--muted); font: 600 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; }
+    .dependency-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 10px 0; border-top: 1px solid var(--line-soft); }
+    .dependency-row:first-of-type { border-top: 0; }
+    .dependency-name { min-width: 0; color: var(--ink); font-size: 12px; font-weight: 650; overflow-wrap: anywhere; }
+    .dependency-id, .dependency-meta { display: block; margin-top: 3px; color: var(--muted); font: 10px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    .dependency-role { align-self: start; padding: 3px 5px; border: 1px solid var(--line); border-radius: 3px; color: var(--done); background: var(--done-soft); font: 600 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .dependency-capabilities { grid-column: 1 / -1; color: var(--ink); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+    .dependency-empty { color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .dependency-timeline { position: relative; margin: 0; padding: 0 0 0 17px; list-style: none; }
+    .dependency-timeline::before { position: absolute; top: 8px; bottom: 9px; left: 4px; width: 1px; background: var(--line); content: ""; }
+    .dependency-event { position: relative; padding: 0 0 12px; color: var(--ink); font-size: 11px; line-height: 1.4; }
+    .dependency-event::before { position: absolute; top: 5px; left: -16px; width: 8px; height: 8px; border: 2px solid var(--paper); border-radius: 50%; background: var(--active); box-shadow: 0 0 0 1px var(--line); content: ""; }
+    .dependency-event[data-type="attempt"]::before { background: var(--done); }
+    .dependency-event[data-type="revision"]::before { background: var(--paused); }
+    .empty { padding: 28px 0; color: var(--muted); font-size: 14px; }
+    footer { margin-top: 28px; color: var(--muted); font: 10px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width: 520px) {
+      main { width: min(100% - 24px, 760px); padding-top: 25px; }
+      h1 { font-size: 25px; }
+      header { align-items: flex-start; }
+      .header-actions { gap: 7px; }
+      .connection { padding: 6px 8px; }
+      .language-button { min-width: 50px; padding-inline: 7px; }
+      .node-head { grid-template-columns: auto minmax(0, 1fr); }
+      .node-status { grid-column: 2; }
+      .project-switcher { align-items: flex-start; flex-wrap: wrap; }
+      .project-context-name { max-width: 100%; }
+      .context-picker { width: 100%; margin-left: 0; }
+      .context-picker select { width: 100%; max-width: none; }
+      .execution-card { grid-template-columns: minmax(0, 1fr); }
+      .execution-status { justify-self: start; }
+      .outcome-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .execution-timeline-head { align-items: flex-start; flex-direction: column; }
+      .project-overview > summary { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+      .project-overview-summary { text-align: left; white-space: normal; }
+      .hierarchy-row { grid-template-columns: 10px minmax(0, 1fr); }
+      .row-status { grid-column: 2; justify-self: start; }
+      .row-relations { grid-column: 2; }
+      .node-result { grid-template-columns: auto minmax(0, 1fr); }
+      .proof-state { grid-column: 2; justify-self: start; }
+      .dependency-row { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+      .dependency-role { justify-self: start; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div><p class="eyebrow">auto-dev / 持续控制</p><h1>任务进度</h1></div>
+      <div class="header-actions">
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换到日间模式" aria-pressed="true"><span id="theme-toggle-label">日间</span></button>
+        <div id="language-switch" class="language-switch" role="group" aria-label="语言切换">
+          <button class="language-button" type="button" data-locale="zh" aria-pressed="true">中文</button>
+          <button class="language-button" type="button" data-locale="en" aria-pressed="false">English</button>
+        </div>
+        <div id="connection" class="connection">连接中</div>
+      </div>
+    </header>
+    <section id="project-switcher" class="project-switcher" aria-live="polite">
+      <span id="project-switcher-label" class="project-switcher-label">当前项目</span>
+      <strong id="project-context-name" class="project-context-name">读取中...</strong>
+      <label id="project-context-picker" class="context-picker" hidden><select id="project-context-select" aria-label="切换项目"></select></label>
+    </section>
+    <section class="goal" aria-live="polite">
+      <div class="goal-label">项目目标</div>
+      <p id="goal" class="goal-text">等待任务状态...</p>
+      <div id="meta" class="meta"></div>
+    </section>
+    <section id="execution-section" class="execution-section" aria-live="polite">
+      <article id="execution-card" class="execution-card idle">
+        <div class="execution-copy">
+          <p id="execution-eyebrow" class="execution-eyebrow">正在处理</p>
+          <h2 id="execution-task" class="execution-title">等待任务状态...</h2>
+          <p id="execution-outcome" class="execution-outcome"></p>
+          <p id="execution-next" class="execution-next" hidden></p>
+        </div>
+        <span id="execution-status" class="execution-status">读取中</span>
+        <div id="execution-metrics" class="execution-metrics"></div>
+        <details id="execution-details" class="execution-details">
+          <summary id="execution-details-summary">查看执行记录</summary>
+          <dl id="execution-records" class="execution-records"></dl>
+        </details>
+      </article>
+      <section id="intake-panel" class="intake-panel"></section>
+      <section id="outcome-overview" class="outcome-overview" aria-label="验证摘要"></section>
+      <div class="execution-timeline-head">
+        <h2 id="timeline-title" class="execution-timeline-title">执行步骤</h2>
+        <div id="legend" class="legend" aria-label="执行步骤状态"></div>
+      </div>
+      <section id="timeline" class="timeline" aria-label="执行步骤"></section>
+      <section id="unattributed" class="unattributed" hidden></section>
+      <section id="verification-issues" class="unattributed" hidden></section>
+      <section id="product-review-summary" class="product-review-summary" hidden></section>
+      <section id="diagnostic-summary" class="diagnostic-summary" hidden></section>
+      <section id="impact-summary" class="impact-summary" hidden></section>
+      <section id="policy-summary" class="impact-summary" hidden></section>
+      <section id="gaps" class="gaps" hidden></section>
+      <section id="checkpoint" class="checkpoint" hidden></section>
+      <section id="archive-points" class="archive-points" hidden></section>
+    </section>
+    <details id="project-overview" class="project-overview">
+      <summary><span id="project-overview-title" class="project-overview-title">项目全貌</span><span id="project-overview-summary" class="project-overview-summary"></span></summary>
+      <div class="project-overview-content">
+        <p id="project-overview-description" class="project-overview-description"></p>
+        <details id="outcome-graph-section" class="overview-section">
+          <summary><span id="outcome-graph-title" class="overview-section-title">结果图谱</span><span id="outcome-count" class="overview-section-count"></span></summary>
+          <ol id="outcome-graph" class="hierarchy-list"></ol>
+        </details>
+        <details id="capability-section" class="overview-section">
+          <summary><span id="capability-title" class="overview-section-title">能力地图</span><span id="capability-count" class="overview-section-count"></span></summary>
+          <div id="capability-map" class="capability-list"></div>
+        </details>
+        <details id="activity-section" class="overview-section">
+          <summary><span id="activity-title" class="overview-section-title">快速活动</span><span id="activity-count" class="overview-section-count"></span></summary>
+          <div id="activity-list" class="activity-list"></div>
+        </details>
+      </div>
+    </details>
+    <details id="dependency-panel" class="dependency-panel">
+      <summary><span id="dependency-title">可信工具依赖</span><span id="dependency-count" class="dependency-count"></span></summary>
+      <div id="dependency-content" class="dependency-content"></div>
+    </details>
+    <footer id="updated"></footer>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const localeText = {
+      zh: {
+        eyebrow: "auto-dev / 持续控制", pageTitle: "任务进度", languageSwitch: "语言切换", switchToLight: "切换到日间模式", switchToDark: "切换到暗黑模式", lightMode: "日间", darkMode: "暗黑",
+        connecting: "连接中", realtime: "实时连接", polling: "轮询中", offline: "离线",
+        legacy: "旧记录", externalBlocked: "外部阻塞", needsUser: "等待输入",
+        interrupted: "已中断", degradedRecovery: "降级恢复", needsReconcile: "待校准", reviewReady: "待用户审阅",
+        goalLabel: "项目目标", goalRevision: "目标修订", goalRevisionHelp: "目标与验收版本",
+        planRevision: "计划修订", planRevisionHelp: "任务树版本", nodeCount: "节点",
+        currentFocus: "当前焦点", currentStatus: "当前状态", taskLifecycle: "任务阶段", gapCount: "未解决缺口",
+        outcomeOverview: "结果证明概览", provedOutcomes: "已证明结果", contractedOutcomes: "结果契约",
+        passedProofs: "通过证明", failedProofs: "失败证明", legacyNodes: "旧契约节点",
+        noFocus: "无", mainTask: "主任务", subtask: "子任务",
+        parent: "上级", acceptance: "验收标准", primaryOutcome: "主结果", proofs: "结果证明", productReviewSummary: "产品验收回执",
+        historicalCompletion: "接管前完成", legacyContract: "旧契约·未证明", noProof: "尚未验证",
+        directOutcome: "一次性主结果", proofPassed: "已通过", proofRecorded: "已记录", proofFailed: "失败", proofPending: "待执行", proofRevalidationRequired: "需复验",
+        dependencies: "前置依赖", children: "子任务", unresolvedGaps: "未解决缺口", unattributedActions: "未归属动作",
+        blocking: "阻塞", notBlocking: "不阻塞", empty: "尚未建立结构化计划。AI 应先创建 plan，再开始执行。",
+        checkpoint: "最近检查点", milestoneArchiveBefore: "开工保护", milestoneArchiveAfter: "成果固化", milestoneArchivePending: "待存档", milestoneArchiveUnavailable: "不可用", statusUpdate: "状态更新时间", refresh: "每 60 秒自动刷新",
+        deliveryNode: "交付", verificationNode: "验证", releaseNode: "发布", milestoneNode: "里程碑", workPacketNode: "工作包", integrationNode: "集成", readyFrontier: "就绪前沿", compilationFocus: "编译焦点", executionFocus: "执行焦点", attemptCount: "尝试", freshness: "新鲜度", fresh: "新鲜", stale: "已过期", workspacePoints: "Git 存档点", archivePointScope: "范围", archivePointProofs: "证明", archivePointTask: "任务", archivePointDigest: "摘要", archivePointStatus: { recorded: "已登记", untracked: "仅 Git", missing_ref: "引用丢失", mismatched_ref: "引用不一致" }, verificationIssues: "验证校准", verificationDetails: "验证范围", verificationScope: "范围", verificationGate: "门禁", verificationPhases: "阶段", scenarioRefs: "场景", expected: "预期", actual: "实际", impactSummary: "影响与保留", impactTargets: "目标", impactTests: "受影响测试", impactPreserve: "保留项", impactUncertainty: "不确定项", policySummary: "项目路径策略", policyRevision: "修订", policyRules: "规则", policyApprovals: "当前批准", policyUnavailable: "策略不可用",
+        diagnosticSummary: "Deep Debug", diagnosticSymptom: "症状", diagnosticReproduction: "复现", diagnosticCases: "历史案例", diagnosticHypotheses: "假设", diagnosticResolution: "诊断结论", diagnosticRecovery: "恢复验证", diagnosticNextProbe: "下一检查",
+        performanceBaseline: "基线", performanceComparison: "对比", performanceMetric: "指标", performanceObserved: "观测", performanceTarget: "目标", performanceSamples: "样本", performanceImprovement: "改善", performanceNoise: "噪声阈值",
+        projection: "投影 v8", task: "任务", noTask: "尚无活动任务", candidateTasks: "待选择任务",
+        trustedDependencies: "可信工具依赖", trustedCount: "可信", activeLeases: "当前租约", dependencyTimeline: "依赖变更",
+        noTrustedDependencies: "尚无已验证依赖", noActiveLeases: "尚无当前租约", dependencyUnavailable: "依赖账本不可用",
+        checkedAt: "验证", activeLeaseCount: "活跃租约", dependencyRecord: "记录", dependencyRevision: "更新", dependencyAttempt: "尝试",
+        controlPlane: "项目控制面", projectContext: "项目上下文", currentProject: "当前项目", switchProject: "切换项目",
+        projectOverview: "项目全貌", projectOverviewFallback: "这里收起项目结果、长期能力和轻量改动记录。",
+        upgradeStatus: { upgrade_available: "控制面可升级", reverification_required: "升级后待复验", manual_decision_required: "升级待人工决策", blocked: "升级受阻", newer_than_cli: "工具版本过旧" },
+        outcomesCount: "{count} 个结果", capabilitiesCount: "{count} 项能力", activitiesCount: "{count} 条快速活动",
+        outcomeGraph: "结果图谱", capabilityMap: "能力地图", activityLog: "快速活动",
+        executionTitle: "本轮工作", executionSteps: "执行步骤", executionDetails: "查看执行记录",
+        executionProject: "所属项目", executionOutcome: "当前结果", executionBranch: "工作分支", executionRecord: "任务编号",
+        executionForOutcome: "本轮围绕“{outcome}”", executionNoOutcome: "尚未关联明确结果",
+        executionNoTask: "当前没有可执行任务", executionNoTaskHint: "选择或创建任务后，执行步骤会显示在这里。",
+        executionInProgress: "任务正在推进中。", executionPaused: "任务已暂停，等待恢复后继续。",
+        executionBlocked: "任务被阻塞，先解决阻塞项后再继续。", executionNeedsUser: "当前需要你补充或确认信息。",
+        executionReviewReady: "本轮工作已完成，等待你审阅确认。", executionWaiting: "正在等待任务状态。", nextAction: "接下来",
+        executionStepProgress: "步骤 {done}/{total}", executionProofProgress: "验证通过 {passed}", executionRevalidationProgress: "待复验 {count}", executionGapCount: "未解决 {count}", transitionStatus: "转场 {route} · {status}",
+        intakePlain: "本轮需求状态", intakeAuthorized: "这轮需求已确认，可以继续推进。", intakePending: "正在判断这轮需求是否清楚，确认前不会开始写入。",
+        intakeAwaitingUser: "还需要你补充或决定 {count} 项，再继续执行。", intakeAwaitingConfirmation: "方案已整理，等待你确认后继续。",
+        intakeUnobserved: "尚未记录这轮需求状态。", intakeReadyBadge: "可以继续", intakePendingBadge: "正在确认", intakeAwaitingUserBadge: "需要你补充", intakeAwaitingConfirmationBadge: "等待确认", intakeUnknownBadge: "尚未开始",
+        viewFocus: "查看焦点", executionFocus: "执行焦点", intake: "需求澄清", intakeBaseline: "需求基线", currentTurn: "当前 turn", classification: "分类", pendingDecisions: "待决策",
+        noProjectContext: "尚未建立项目上下文", noOutcomes: "尚未建立结果节点", noCapabilities: "尚未建立能力地图", noActivities: "尚无快速活动",
+        outcomeRelations: "关联", affectedPaths: "影响路径", validation: "验证", selectedContext: "当前查看上下文",
+        intakeStatus: { unobserved: "未观察", pending: "待分类", awaiting_user: "等待用户", awaiting_confirmation: "等待确认", authorized: "已授权" },
+        outcomeKind: { behavior_change: "行为变化", defect_resolution: "缺陷修复", measured_improvement: "测量改进", decision: "决策", knowledge_gain: "知识增量", document: "文档交付" },
+        status: { idle: "空闲", proposed: "提议中", planned: "计划中", active: "进行中", review_ready: "待审阅", paused: "已暂停", blocked: "已阻塞", done: "已完成", completed: "已完成", reverification_required: "已完成，需复验", superseded: "已替代", archived: "已归档" }
+      },
+      en: {
+        eyebrow: "auto-dev / CONTINUITY CONTROL", pageTitle: "Task Progress", languageSwitch: "Language", switchToLight: "Switch to light mode", switchToDark: "Switch to dark mode", lightMode: "Light", darkMode: "Dark",
+        connecting: "Connecting", realtime: "Live", polling: "Polling", offline: "Offline",
+        legacy: "Legacy record", externalBlocked: "External block", needsUser: "Needs input",
+        interrupted: "Interrupted", degradedRecovery: "Degraded recovery", needsReconcile: "Needs reconcile", reviewReady: "Awaiting review",
+        goalLabel: "Project objective", goalRevision: "Goal revision", goalRevisionHelp: "Goal and acceptance version",
+        planRevision: "Plan revision", planRevisionHelp: "Task tree version", nodeCount: "Nodes",
+        currentFocus: "Current focus", currentStatus: "Current status", taskLifecycle: "Task lifecycle", gapCount: "Open gaps",
+        outcomeOverview: "Outcome proof overview", provedOutcomes: "Proved outcomes", contractedOutcomes: "Outcome contracts",
+        passedProofs: "Passed proofs", failedProofs: "Failed proofs", legacyNodes: "Legacy nodes",
+        noFocus: "None", mainTask: "Main task", subtask: "Subtask",
+        parent: "Parent", acceptance: "Acceptance criteria", primaryOutcome: "Primary outcome", proofs: "Outcome proofs", productReviewSummary: "Product acceptance receipt",
+        historicalCompletion: "Completed before adoption", legacyContract: "Legacy · unproved", noProof: "Not verified",
+        directOutcome: "One-shot primary outcome", proofPassed: "Passed", proofRecorded: "Recorded", proofFailed: "Failed", proofPending: "Pending", proofRevalidationRequired: "Revalidation required",
+        dependencies: "Dependencies", children: "Subtasks", unresolvedGaps: "Open gaps", unattributedActions: "Unattributed actions",
+        blocking: "Blocking", notBlocking: "Non-blocking", empty: "No structured plan yet. Create a plan before execution.",
+        checkpoint: "Latest checkpoint", milestoneArchiveBefore: "Pre-change", milestoneArchiveAfter: "Post-change", milestoneArchivePending: "Pending", milestoneArchiveUnavailable: "Unavailable", statusUpdate: "Updated", refresh: "Auto-refreshes every 60 seconds",
+        deliveryNode: "Delivery", verificationNode: "Verification", releaseNode: "Release", milestoneNode: "Milestone", workPacketNode: "Work packet", integrationNode: "Integration", readyFrontier: "Ready frontier", compilationFocus: "Compilation focus", executionFocus: "Execution focus", attemptCount: "Attempts", freshness: "Freshness", fresh: "Fresh", stale: "Stale", workspacePoints: "Git archive points", archivePointScope: "Scope", archivePointProofs: "Proofs", archivePointTask: "Task", archivePointDigest: "Digest", archivePointStatus: { recorded: "Recorded", untracked: "Git only", missing_ref: "Missing ref", mismatched_ref: "Ref mismatch" }, verificationIssues: "Verification reconcile", verificationDetails: "Verification", verificationScope: "Scope", verificationGate: "Gate", verificationPhases: "Phases", scenarioRefs: "Scenarios", expected: "Expected", actual: "Actual", impactSummary: "Impact and preservation", impactTargets: "Targets", impactTests: "Affected tests", impactPreserve: "Preserve", impactUncertainty: "Uncertainty", policySummary: "Workspace path policy", policyRevision: "Revision", policyRules: "Rules", policyApprovals: "Current approvals", policyUnavailable: "Policy unavailable",
+        diagnosticSummary: "Deep Debug", diagnosticSymptom: "Symptom", diagnosticReproduction: "Reproduction", diagnosticCases: "Historical cases", diagnosticHypotheses: "Hypotheses", diagnosticResolution: "Resolution", diagnosticRecovery: "Recovery", diagnosticNextProbe: "Next probe",
+        performanceBaseline: "Baseline", performanceComparison: "Comparison", performanceMetric: "Metric", performanceObserved: "Observed", performanceTarget: "Target", performanceSamples: "Samples", performanceImprovement: "Improvement", performanceNoise: "Noise threshold",
+        projection: "Projection v8", task: "Task", noTask: "No active task", candidateTasks: "Task candidates",
+        trustedDependencies: "Trusted tool dependencies", trustedCount: "Trusted", activeLeases: "Active leases", dependencyTimeline: "Dependency changes",
+        noTrustedDependencies: "No verified dependencies", noActiveLeases: "No active leases", dependencyUnavailable: "Dependency ledger unavailable",
+        checkedAt: "Checked", activeLeaseCount: "Active leases", dependencyRecord: "Recorded", dependencyRevision: "Updated", dependencyAttempt: "Attempt",
+        controlPlane: "Project control plane", projectContext: "Project context", currentProject: "Current project", switchProject: "Switch project",
+        projectOverview: "Project overview", projectOverviewFallback: "Results, durable capabilities, and quick activity records are kept here.",
+        upgradeStatus: { upgrade_available: "Control plane upgrade available", reverification_required: "Revalidation required", manual_decision_required: "Manual upgrade decision required", blocked: "Upgrade blocked", newer_than_cli: "CLI is older than project state" },
+        outcomesCount: "{count} outcomes", capabilitiesCount: "{count} capabilities", activitiesCount: "{count} quick activities",
+        outcomeGraph: "Outcome graph", capabilityMap: "Capability map", activityLog: "Quick activities",
+        executionTitle: "This round's work", executionSteps: "Execution steps", executionDetails: "View execution record",
+        executionProject: "Project", executionOutcome: "Outcome", executionBranch: "Working branch", executionRecord: "Task record",
+        executionForOutcome: "Working toward \"{outcome}\"", executionNoOutcome: "No outcome is linked yet",
+        executionNoTask: "No task is ready to run", executionNoTaskHint: "Select or create a task to show its execution steps here.",
+        executionInProgress: "The task is moving through its plan.", executionPaused: "The task is paused until it is resumed.",
+        executionBlocked: "The task is blocked. Resolve the blocker before continuing.", executionNeedsUser: "Your input or confirmation is needed before continuing.",
+        executionReviewReady: "This round is complete and ready for your review.", executionWaiting: "Waiting for task status.", nextAction: "Next",
+        executionStepProgress: "Steps {done}/{total}", executionProofProgress: "Proofs passed {passed}", executionRevalidationProgress: "Revalidation required {count}", executionGapCount: "Open gaps {count}", transitionStatus: "Transition {route} · {status}",
+        intakePlain: "This round's requirement status", intakeAuthorized: "The requirement is confirmed. Work can continue.", intakePending: "Checking whether this requirement is clear. Writes will wait for that result.",
+        intakeAwaitingUser: "{count} item(s) still need your input or decision.", intakeAwaitingConfirmation: "The approach is ready and waiting for your confirmation.",
+        intakeUnobserved: "No requirement status is recorded for this round.", intakeReadyBadge: "Ready to continue", intakePendingBadge: "Checking", intakeAwaitingUserBadge: "Needs your input", intakeAwaitingConfirmationBadge: "Awaiting confirmation", intakeUnknownBadge: "Not started",
+        viewFocus: "View focus", executionFocus: "Execution focus", intake: "Requirement intake", intakeBaseline: "Requirement baseline", currentTurn: "Current turn", classification: "Classification", pendingDecisions: "Pending decisions",
+        noProjectContext: "No managed project context", noOutcomes: "No outcome nodes yet", noCapabilities: "No capability map entries", noActivities: "No quick activities yet",
+        outcomeRelations: "Relations", affectedPaths: "Affected paths", validation: "Validation", selectedContext: "Viewing context",
+        intakeStatus: { unobserved: "Unobserved", pending: "Awaiting classification", awaiting_user: "Awaiting user", awaiting_confirmation: "Awaiting confirmation", authorized: "Authorized" },
+        outcomeKind: { behavior_change: "Behavior change", defect_resolution: "Defect resolution", measured_improvement: "Measured improvement", decision: "Decision", knowledge_gain: "Knowledge gain", document: "Document delivery" },
+        status: { idle: "Idle", proposed: "Proposed", planned: "Planned", active: "In progress", review_ready: "Review ready", paused: "Paused", blocked: "Blocked", done: "Done", completed: "Completed", reverification_required: "Completed - revalidation required", superseded: "Superseded", archived: "Archived" }
+      }
+    };
+    const localeStorageKey = "auto-dev-progress-locale";
+    let locale = "zh";
+    try {
+      locale = localStorage.getItem(localeStorageKey) === "en" ? "en" : "zh";
+    } catch (_) {}
+    // Theme selection intentionally lasts only for this page so each open starts dark.
+    let theme = "dark";
+    const codePrefix = /^\s*([A-Za-z][A-Za-z0-9]*(?:\.[0-9]+)*)\s*:\s*(.*)$/;
+    let latest = null;
+    let transport = "connecting";
+    let selectedProjectContext = null;
+    let eventSource = null;
+    let sseHealthy = false;
+    const POLL_INTERVAL_MS = 60 * 1000;
+
+    function t(key) {
+      return localeText[locale][key] || localeText.en[key] || key;
+    }
+    function format(key, values) {
+      return Object.entries(values || {}).reduce((result, entry) => result.replaceAll("{" + entry[0] + "}", String(entry[1])), t(key));
+    }
+    function statusLabel(key) {
+      return (localeText[locale].status || {})[key] || (localeText.en.status || {})[key] || key;
+    }
+    function outcomeKindLabel(key) {
+      return (localeText[locale].outcomeKind || {})[key] || (localeText.en.outcomeKind || {})[key] || key;
+    }
+    function intakeStatusLabel(key) {
+      return (localeText[locale].intakeStatus || {})[key] || (localeText.en.intakeStatus || {})[key] || key;
+    }
+    function archivePointStatusLabel(key) {
+      return (localeText[locale].archivePointStatus || {})[key] || (localeText.en.archivePointStatus || {})[key] || key;
+    }
+    function applyLocale() {
+      document.documentElement.lang = locale === "zh" ? "zh-CN" : "en";
+      document.title = t("pageTitle");
+      document.querySelector(".eyebrow").textContent = t("eyebrow");
+      document.querySelector("h1").textContent = t("pageTitle");
+      document.querySelector(".goal-label").textContent = t("goalLabel");
+      $("project-switcher-label").textContent = t("currentProject");
+      $("project-context-select").setAttribute("aria-label", t("switchProject"));
+      $("project-overview-title").textContent = t("projectOverview");
+      $("outcome-graph-title").textContent = t("outcomeGraph");
+      $("capability-title").textContent = t("capabilityMap");
+      $("activity-title").textContent = t("activityLog");
+      $("execution-eyebrow").textContent = t("executionTitle");
+      $("execution-details-summary").textContent = t("executionDetails");
+      $("timeline-title").textContent = t("executionSteps");
+      document.querySelector("#language-switch").setAttribute("aria-label", t("languageSwitch"));
+      document.querySelector("#timeline").setAttribute("aria-label", t("executionSteps"));
+      document.querySelector("#legend").setAttribute("aria-label", t("executionSteps"));
+      document.querySelectorAll("[data-locale]").forEach((button) => {
+        const active = button.dataset.locale === locale;
+        button.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      applyTheme();
+    }
+    function applyTheme() {
+      const dark = theme === "dark";
+      const toggle = $("theme-toggle");
+      document.documentElement.dataset.theme = theme;
+      toggle.setAttribute("aria-pressed", dark ? "true" : "false");
+      toggle.setAttribute("aria-label", t(dark ? "switchToLight" : "switchToDark"));
+      toggle.title = toggle.getAttribute("aria-label");
+      $("theme-toggle-label").textContent = t(dark ? "lightMode" : "darkMode");
+    }
+    function setTheme(next) {
+      if (next !== "dark" && next !== "light") return;
+      theme = next;
+      applyTheme();
+    }
+    function setLocale(next) {
+      if (!localeText[next] || next === locale) return;
+      locale = next;
+      try { localStorage.setItem(localeStorageKey, locale); } catch (_) {}
+      applyLocale();
+      if (latest) render(latest);
+    }
+    function textValue(value) {
+      if (value == null) return "";
+      if (typeof value === "string") return value;
+      if (typeof value === "object") return value.text || value.statement || JSON.stringify(value);
+      return String(value);
+    }
+    function localizedValue(value) {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        return value[locale] || value[locale === "zh" ? "en" : "zh"] || value.text || value.statement || JSON.stringify(value);
+      }
+      return textValue(value);
+    }
+    function esc(value) {
+      return localizedValue(value).replace(/[&<>\"']/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]));
+    }
+    function splitTitle(value) {
+      const raw = localizedValue(value) || (locale === "zh" ? "未命名节点" : "Untitled node");
+      const match = raw.match(codePrefix);
+      return match ? { code: match[1], label: match[2] || match[1] } : { code: "", label: raw };
+    }
+    function buildProjection(nodes) {
+      const byId = new Map();
+      nodes.forEach((node) => { if (node && node.id) byId.set(node.id, node); });
+      const childrenById = new Map();
+      const roots = [];
+      nodes.forEach((node) => {
+        if (!node || !node.id) return;
+        if (node.parent_id && byId.has(node.parent_id)) {
+          if (!childrenById.has(node.parent_id)) childrenById.set(node.parent_id, []);
+          childrenById.get(node.parent_id).push(node);
+        } else {
+          roots.push(node);
+        }
+      });
+      const rows = [];
+      const rowById = new Map();
+      const visited = new Set();
+      function walk(node, depth, parentCode, rootIndex) {
+        if (!node || visited.has(node.id)) return;
+        visited.add(node.id);
+        const split = splitTitle(node.title || node.id);
+        const siblings = node.parent_id ? (childrenById.get(node.parent_id) || []) : [];
+        const legacyCode = parentCode ? parentCode + "." + (siblings.indexOf(node) + 1) : (split.code || "T" + rootIndex);
+        const code = localizedValue(node.display_code) || legacyCode;
+        const children = childrenById.get(node.id) || [];
+        const renderedChildren = children.slice().reverse();
+        const row = { node, depth, code, label: split.label, children: renderedChildren };
+        rows.push(row);
+        rowById.set(node.id, row);
+        renderedChildren.forEach((child) => walk(child, depth + 1, code, rootIndex));
+      }
+      roots.slice().reverse().forEach((node) => walk(node, 0, "", roots.indexOf(node) + 1));
+      nodes.slice().reverse().forEach((node) => {
+        if (node && !visited.has(node.id)) walk(node, 0, "", roots.length + nodes.indexOf(node) + 1);
+      });
+      return { rows, rowById, byId };
+    }
+    function groupGaps(gaps) {
+      const grouped = new Map();
+      gaps.forEach((gap) => {
+        const nodeId = gap.node_id || "__unattached__";
+        if (!grouped.has(nodeId)) grouped.set(nodeId, []);
+        grouped.get(nodeId).push(gap);
+      });
+      return grouped;
+    }
+    function proofRecords(state) {
+      const continuity = state.continuity || {};
+      const delivery = state.delivery_contract || {};
+      return Array.isArray(continuity.proofs) ? continuity.proofs : (Array.isArray(delivery.proofs) ? delivery.proofs : []);
+    }
+    function latestProofRecords(state) {
+      const continuity = state.continuity || {};
+      const delivery = state.delivery_contract || {};
+      const projected = Array.isArray(continuity.latest_proofs) ? continuity.latest_proofs
+        : (Array.isArray(delivery.latest_proofs) ? delivery.latest_proofs : null);
+      if (projected) return projected;
+      const byId = new Map();
+      proofRecords(state).forEach((proof) => {
+        const key = (proof.node_id || "") + "\u0000" + (proof.proof_id || "");
+        const previous = byId.get(key);
+        if (!previous || Number(proof.attempt_index || 1) > Number(previous.attempt_index || 1)) byId.set(key, proof);
+      });
+      return Array.from(byId.values());
+    }
+    function proofState(record) {
+      if (!record || !record.current_outcome) return "pending";
+      if (record.status === "failed") return "failed";
+      return record.status === "passed" && record.fresh ? "passed" : "pending";
+    }
+    function nodeReverificationIssue(state, node) {
+      const issues = Array.isArray(state.verification_issues) ? state.verification_issues : [];
+      return issues.find((issue) => issue && issue.node_id === node.id && issue.kind === "stale_proof") || null;
+    }
+    function metricValue(value) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return "-";
+      return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+    }
+    function performanceDetails(record) {
+      const evidence = record && record.performance_evidence;
+      if (!evidence || typeof evidence !== "object") return "";
+      const phase = evidence.phase === "comparison" ? t("performanceComparison") : t("performanceBaseline");
+      const direction = evidence.direction === "higher" ? ">=" : "<=";
+      const metric = [evidence.metric, evidence.unit].filter(Boolean).join(" ") || "-";
+      const details = [
+        phase,
+        t("performanceMetric") + "=" + metric,
+        t("performanceObserved") + "=" + metricValue(evidence.observed_value),
+        t("performanceTarget") + " " + direction + " " + metricValue(evidence.target_value),
+        t("performanceSamples") + "=" + (evidence.sample_count || 0),
+      ];
+      if (evidence.baseline && typeof evidence.baseline === "object") {
+        details.push(t("performanceBaseline") + "=" + metricValue(evidence.baseline.observed_value) + " (" + (evidence.baseline.sample_count || 0) + ")");
+      }
+      if (typeof evidence.improvement_pct === "number") details.push(t("performanceImprovement") + "=" + metricValue(evidence.improvement_pct) + "%");
+      if (typeof evidence.noise_tolerance_pct === "number") details.push(t("performanceNoise") + "=" + metricValue(evidence.noise_tolerance_pct) + "%");
+      if (evidence.target_met === true) details.push("target_met");
+      if (evidence.change_exceeds_noise === true) details.push("change_exceeds_noise");
+      if (record.fresh === false) details.push(t("stale"));
+      return details.join(" · ");
+    }
+    function nodeProofView(state, node) {
+      if (!node.outcome) {
+        return {
+          key: "legacy",
+          label: node.historical_completion ? t("historicalCompletion") : t("legacyContract"),
+          proofs: [], required: [], passed: 0, failed: 0,
+        };
+      }
+      const required = Array.isArray(node.outcome.proofs) ? node.outcome.proofs : [];
+      const records = proofRecords(state).filter((proof) => proof.node_id === node.id && proof.current_outcome);
+      const latest = latestProofRecords(state).filter((proof) => proof.node_id === node.id && proof.current_outcome);
+      const byId = new Map();
+      latest.forEach((proof) => byId.set(proof.proof_id, proof));
+      const stateById = new Map(required.map((proof) => [proof.id, proofState(byId.get(proof.id))]));
+      const passed = required.filter((proof) => stateById.get(proof.id) === "passed").length;
+      const failed = required.filter((proof) => stateById.get(proof.id) === "failed").length;
+      const reverificationIssue = nodeReverificationIssue(state, node);
+      const key = reverificationIssue ? "stale" : (failed ? "failed" : (required.length && passed === required.length ? "proved" : "pending"));
+      const label = key === "stale" ? t("proofRevalidationRequired") : key === "failed" ? t("proofFailed") + " " + failed : key === "proved" ? t("proofPassed") + " " + passed + "/" + required.length : (passed + "/" + required.length);
+      const attempts = Array.from(byId.values()).reduce((total, proof) => total + Number(proof.attempt_count || proof.attempt_index || 1), 0);
+      return { key, label, proofs: records, required, passed, failed, byId, stateById, attempts };
+    }
+    function nodeKindLabel(kind) {
+      return kind === "verification" ? t("verificationNode") : kind === "release" ? t("releaseNode") : t("deliveryNode");
+    }
+    function nodeRoleLabel(node) {
+      return node.node_role === "milestone" ? t("milestoneNode") : node.node_role === "work_packet" ? t("workPacketNode") : node.node_role === "integration" ? t("integrationNode") : nodeKindLabel(node.node_kind);
+    }
+    function rollingNodeMeta(state, node) {
+      const continuity = state.continuity || {};
+      const frontier = continuity.ready_frontier || {};
+      const values = [];
+      if (node.node_role === "milestone") {
+        const milestone = node.milestone_state || {};
+        [milestone.compilation_status, milestone.integration_status, milestone.review_result].filter(Boolean).forEach((value) => values.push(value));
+        if ((frontier.milestones || []).includes(node.id)) values.push(t("readyFrontier"));
+        if (continuity.compilation_focus === node.id) values.push(t("compilationFocus"));
+      } else if (["work_packet", "integration"].includes(node.node_role)) {
+        if ((frontier.work_packets || []).includes(node.id)) values.push(t("readyFrontier"));
+        if (continuity.execution_focus === node.id) values.push(t("executionFocus"));
+      }
+      return Array.from(new Set(values)).join(" · ");
+    }
+    function viewStatus(state, node) {
+      const continuity = state.continuity || {};
+      const current = continuity.current_node === node.id;
+      const nextAction = textValue(continuity.next_action).trim();
+      const paused = current && node.status === "planned" && /^(paused|pause|暂停)/i.test(nextAction);
+      const reverificationIssue = nodeReverificationIssue(state, node);
+      const needsReverification = ["done", "completed"].includes(node.status) && Boolean(reverificationIssue);
+      return { key: paused ? "paused" : (needsReverification ? "reverification_required" : (node.status || "planned")), current, reverificationIssue };
+    }
+    function milestoneCheckpointPoint(phase, point) {
+      const value = point && typeof point === "object" ? point : {};
+      const label = phase === "before" ? t("milestoneArchiveBefore") : t("milestoneArchiveAfter");
+      const status = textValue(value.status).trim() || "pending";
+      const fullHash = textValue(value.object).trim();
+      const shortHash = textValue(value.short_hash).trim() || fullHash.slice(0, 8);
+      const displayedHash = shortHash || (status === "pending" ? t("milestoneArchivePending") : t("milestoneArchiveUnavailable"));
+      const title = [label, archivePointStatusLabel(status), value.ref, fullHash].filter(Boolean).join(" · ");
+      return '<span class="milestone-checkpoint-point ' + phase + '" data-status="' + esc(status) + '" title="' + esc(title) + '"><span class="milestone-checkpoint-label">' + esc(label) + '</span><code>' + esc(displayedHash) + "</code></span>";
+    }
+    function renderMilestoneCheckpointChain(state, node, code) {
+      const byNode = state.workspace_checkpoint_nodes || {};
+      const checkpoints = Object.prototype.hasOwnProperty.call(byNode, node.id) && Array.isArray(byNode[node.id]) ? byNode[node.id] : [];
+      return checkpoints.map((protection) => {
+        return '<div class="milestone-checkpoint-chain" data-protection-id="' + esc(protection.protection_id || "") + '">' +
+          milestoneCheckpointPoint("before", protection.before) +
+          '<span class="milestone-checkpoint-link" aria-hidden="true"></span>' +
+          '<span class="milestone-checkpoint-node">' + esc(code || node.id) + '</span>' +
+          '<span class="milestone-checkpoint-link" aria-hidden="true"></span>' +
+          milestoneCheckpointPoint("after", protection.after) +
+          "</div>";
+      }).join("");
+    }
+    function focusIds(projection, currentId) {
+      const ids = new Set();
+      let id = currentId;
+      while (id && projection.byId.has(id) && !ids.has(id)) {
+        ids.add(id);
+        id = projection.byId.get(id).parent_id;
+      }
+      return ids;
+    }
+    function renderDetailGroup(title, items, renderItem) {
+      if (!items.length) return "";
+      return '<section class="detail-group"><h4>' + esc(title) + '<span>' + items.length + '</span></h4><ul class="detail-list">' + items.map(renderItem).join("") + "</ul></section>";
+    }
+    function renderNodeDetails(state, row, projection, gapsByNode) {
+      const node = row.node;
+      const groups = [];
+      const parent = node.parent_id ? projection.rowById.get(node.parent_id) : null;
+      const acceptance = Array.isArray(node.acceptance) ? node.acceptance : [];
+      const dependencies = Array.isArray(node.depends_on) ? node.depends_on : [];
+      const childRows = row.children.map((child) => projection.rowById.get(child.id)).filter(Boolean);
+      const gaps = gapsByNode.get(node.id) || [];
+      const relations = (((state.continuity || {}).plan || {}).relations || []).filter((relation) => relation && (relation.from === node.id || relation.to === node.id));
+      const proofView = nodeProofView(state, node);
+      if (parent) {
+        groups.push('<section class="detail-group"><h4>' + esc(t("parent")) + '</h4><ul class="detail-list"><li><span class="detail-ref">' + esc(parent.code) + "</span> " + esc(parent.label) + "</li></ul></section>");
+      }
+      groups.push(renderDetailGroup(t("acceptance"), acceptance, (item) => "<li>" + esc(item) + "</li>"));
+      const verification = node.verification || {};
+      const verificationDetails = [];
+      if (values(verification.scope).length) verificationDetails.push("<li><strong>" + esc(t("verificationScope")) + "</strong> " + esc(values(verification.scope).join(" · ")) + "</li>");
+      if (verification.gate) verificationDetails.push("<li><strong>" + esc(t("verificationGate")) + "</strong> " + esc(verification.gate) + "</li>");
+      if (values(verification.phase_refs).length) verificationDetails.push("<li><strong>" + esc(t("verificationPhases")) + "</strong> " + esc(values(verification.phase_refs).join(" · ")) + "</li>");
+      if (values(verification.scenario_refs).length) verificationDetails.push("<li><strong>" + esc(t("scenarioRefs")) + "</strong> " + esc(values(verification.scenario_refs).join(" · ")) + "</li>");
+      if (verification.expected) verificationDetails.push("<li><strong>" + esc(t("expected")) + "</strong> " + esc(verification.expected) + "</li>");
+      if (verification.actual) verificationDetails.push("<li><strong>" + esc(t("actual")) + "</strong> " + esc(verification.actual) + "</li>");
+      if (verificationDetails.length) groups.push('<section class="detail-group"><h4>' + esc(t("verificationDetails")) + "</h4><ul class=\"detail-list\">" + verificationDetails.join("") + "</ul></section>");
+      if (node.outcome) {
+        groups.unshift('<section class="detail-group"><h4>' + esc(t("primaryOutcome")) + '</h4><div class="outcome-primary">' + esc(node.outcome.primary) + "</div></section>");
+        groups.push(renderDetailGroup(t("proofs"), proofView.required, (required) => {
+          const record = proofView.byId.get(required.id);
+          const state = proofView.stateById.get(required.id) || "pending";
+          const status = record?.status || "pending";
+          const mark = state === "passed" ? "ok" : state === "failed" ? "!" : "-";
+          const freshness = record ? (record.fresh ? t("fresh") : t("stale")) : t("stale");
+          const statusText = status === "passed" ? t("proofPassed") : status === "recorded" ? t("proofRecorded") : status === "failed" ? t("proofFailed") : t("proofPending");
+          const meta = record ? statusText + " · " + freshness + " · " + t("attemptCount") + " " + (record.attempt_count || record.attempt_index || 1) + " · " + (record.at || "-") + " · exit " + (record.exit_code ?? "-") : t("proofPending");
+          const performance = performanceDetails(record);
+          return '<li class="proof-line ' + esc(state) + '"><span class="proof-mark">' + mark + '</span><span>' + esc(required.description || required.id) + ' <span class="detail-meta">' + esc(meta) + "</span>" + (performance ? '<span class="detail-meta performance-meta">' + esc(performance) + "</span>" : "") + "</span></li>";
+        }));
+      }
+      if (dependencies.length) {
+        groups.push(renderDetailGroup(t("dependencies"), dependencies, (id) => {
+          const dependency = projection.rowById.get(id);
+          return "<li><span class=\"detail-ref\">" + esc(dependency ? dependency.code : id) + "</span> " + esc(dependency ? dependency.label : id) + "</li>";
+        }));
+      }
+      if (relations.length) {
+        groups.push(renderDetailGroup(t("outcomeRelations"), relations, (relation) => {
+          const otherId = relation.from === node.id ? relation.to : relation.from;
+          const other = projection.rowById.get(otherId);
+          const direction = relation.from === node.id ? "->" : "<-";
+          const evidence = values(relation.evidence).join(" · ");
+          return '<li><span class="detail-ref">' + esc(relation.kind || "relation") + '</span> ' + esc(direction + " " + (other ? other.code : otherId)) + (evidence ? ' <span class="detail-meta">' + esc(evidence) + "</span>" : "") + "</li>";
+        }));
+      }
+      if (childRows.length) {
+        groups.push(renderDetailGroup(t("children"), childRows, (child) => {
+          const status = viewStatus(state, child.node);
+          return "<li><span class=\"detail-ref\">" + esc(child.code) + "</span> " + esc(child.label) + ' <span class="detail-meta">' + esc(statusLabel(status.key)) + "</span></li>";
+        }));
+      }
+      if (gaps.length) {
+        groups.push(renderDetailGroup(t("unresolvedGaps"), gaps, (gap) => {
+          return "<li>" + esc(gap.summary || (locale === "zh" ? "未命名缺口" : "Untitled gap")) + ' <span class="detail-meta">' + esc(gap.owner || "agent") + " · " + esc(gap.blocking ? t("blocking") : t("notBlocking")) + "</span></li>";
+        }));
+      }
+      return groups.filter(Boolean).join("");
+    }
+    function restoreExpanded(nodeIds) {
+      document.querySelectorAll("#timeline details[data-node-id]").forEach((detail) => {
+        detail.open = nodeIds.has(detail.dataset.nodeId);
+      });
+    }
+    function values(value) {
+      return Array.isArray(value) ? value.filter((item) => typeof item === "string" && item) : [];
+    }
+    function dependencyEventLabel(event) {
+      if (event.type === "attempt") {
+        return t("dependencyAttempt") + " · " + [event.result, event.classification].filter(Boolean).join(" / ");
+      }
+      const label = event.type === "revision" ? t("dependencyRevision") : t("dependencyRecord");
+      return label + " · " + [event.status, event.role, event.version].filter(Boolean).join(" / ");
+    }
+    function renderDependencies(state) {
+      const projection = state.dependencies || {};
+      const trusted = Array.isArray(projection.trusted) ? projection.trusted : [];
+      const leases = Array.isArray(projection.leases) ? projection.leases : [];
+      const timeline = Array.isArray(projection.timeline) ? projection.timeline : [];
+      const panel = $("dependency-panel");
+      $("dependency-title").textContent = t("trustedDependencies");
+      $("dependency-count").textContent = t("trustedCount") + " " + trusted.length;
+      panel.setAttribute("aria-label", t("trustedDependencies"));
+      if (projection.status === "unavailable") {
+        $("dependency-content").innerHTML = '<p class="dependency-empty">' + esc(t("dependencyUnavailable")) + "</p>";
+        return;
+      }
+      const trustedRows = trusted.length ? trusted.map((dependency) => {
+        const capabilities = values(dependency.capabilities).join(" · ");
+        const scope = values(dependency.scope).join(" · ");
+        const leaseCount = dependency.active_lease_count || 0;
+        const version = dependency.version ? "v" + dependency.version : "-";
+        return '<article class="dependency-row"><div><div class="dependency-name">' + esc(dependency.name || dependency.id) + '</div><span class="dependency-id">' + esc(dependency.id) + " · " + esc(version) + '</span></div><span class="dependency-role">' + esc(dependency.role || "-") + '</span><div class="dependency-capabilities">' + esc(capabilities || "-") + '<span class="dependency-meta">' + esc(t("checkedAt")) + " " + esc(dependency.last_checked_at || dependency.updated_at || "-") + " · " + esc(t("activeLeaseCount")) + " " + esc(leaseCount) + (scope ? " · " + esc(scope) : "") + "</span></div></article>";
+      }).join("") : '<p class="dependency-empty">' + esc(t("noTrustedDependencies")) + "</p>";
+      const leaseRows = leases.length ? leases.map((lease) => {
+        return '<article class="dependency-row"><div><div class="dependency-name">' + esc(lease.dependency_id || "-") + '</div><span class="dependency-id">' + esc(lease.capability || "-") + (lease.scope ? " · " + esc(lease.scope) : "") + '</span></div><span class="dependency-role">' + esc(lease.version ? "v" + lease.version : "-") + '</span><div class="dependency-capabilities"><span class="dependency-meta">' + esc(lease.validated_at || "-") + "</span></div></article>";
+      }).join("") : '<p class="dependency-empty">' + esc(t("noActiveLeases")) + "</p>";
+      const timelineView = timeline.length ? '<section class="dependency-group"><h3>' + esc(t("dependencyTimeline")) + '</h3><ol class="dependency-timeline">' + timeline.map((event) => {
+        return '<li class="dependency-event" data-type="' + esc(event.type || "record") + '"><strong>' + esc(event.name || event.dependency_id || "-") + '</strong><span class="dependency-meta">' + esc(dependencyEventLabel(event)) + " · " + esc(event.at || "-") + "</span></li>";
+      }).join("") + "</ol></section>" : "";
+      $("dependency-content").innerHTML = '<section class="dependency-group"><h3>' + esc(t("trustedDependencies")) + "</h3>" + trustedRows + '</section><section class="dependency-group"><h3>' + esc(t("activeLeases")) + "</h3>" + leaseRows + "</section>" + timelineView;
+    }
+    function hierarchyOutcomes(hierarchy) {
+      const graph = hierarchy.outcome_graph || {};
+      return Array.isArray(graph.outcomes) ? graph.outcomes : [];
+    }
+    function intakeCopy(stateKey, decisionCount) {
+      if (stateKey === "authorized") return { message: t("intakeAuthorized"), badge: t("intakeReadyBadge") };
+      if (stateKey === "pending") return { message: t("intakePending"), badge: t("intakePendingBadge") };
+      if (stateKey === "awaiting_user") return {
+        message: format("intakeAwaitingUser", { count: decisionCount || 1 }), badge: t("intakeAwaitingUserBadge")
+      };
+      if (stateKey === "awaiting_confirmation") return { message: t("intakeAwaitingConfirmation"), badge: t("intakeAwaitingConfirmationBadge") };
+      return { message: t("intakeUnobserved"), badge: t("intakeUnknownBadge") };
+    }
+    function executionTone(state, continuityStatus, hasTask) {
+      const stateKey = state.status || continuityStatus || "idle";
+      if (!hasTask) return "idle";
+      if (stateKey === "review_ready") return "review";
+      if (["blocked", "blocked_external", "needs_reconcile", "interrupted", "degraded_recovery"].includes(stateKey)) return "blocked";
+      if (stateKey === "paused" || stateKey === "needs_user") return "paused";
+      return "active";
+    }
+    function executionNarrative(state, continuityStatus, currentRow, summary, hasTask) {
+      const stateKey = state.status || continuityStatus || "idle";
+      if (!hasTask) return t("executionNoTaskHint");
+      if (stateKey === "review_ready") return t("executionReviewReady");
+      if (["blocked", "blocked_external", "needs_reconcile", "interrupted", "degraded_recovery"].includes(stateKey)) return t("executionBlocked");
+      if (stateKey === "paused") return t("executionPaused");
+      if (stateKey === "needs_user") return t("executionNeedsUser");
+      const next = localizedValue(summary.next_action).trim();
+      if (next) return t("nextAction") + "：" + next;
+      if (currentRow) return t("executionInProgress") + " " + currentRow.code + " · " + currentRow.label;
+      return t("executionWaiting");
+    }
+    function renderExecution(state, context) {
+      const hierarchy = state.hierarchy || {};
+      const execution = hierarchy.execution_focus || {};
+      const managed = hierarchy.managed_context || {};
+      const frame = managed.frame || {};
+      const outcomes = hierarchyOutcomes(hierarchy);
+      const taskId = execution.task_id || state.id || "";
+      const hasTask = Boolean(taskId || state.task);
+      const outcome = outcomes.find((item) => item && item.id === execution.outcome_id);
+      const outcomeTitle = localizedValue(outcome?.title || "");
+      const tone = executionTone(state, context.continuityStatus, hasTask);
+      const card = $("execution-card");
+      card.className = "execution-card " + tone;
+      $("execution-eyebrow").textContent = t("executionTitle");
+      $("execution-task").textContent = hasTask ? localizedValue(state.task || taskId) : t("executionNoTask");
+      $("execution-task").title = hasTask ? taskId : "";
+      $("execution-outcome").textContent = outcomeTitle
+        ? format("executionForOutcome", { outcome: outcomeTitle })
+        : (hasTask ? t("executionNoOutcome") : t("executionNoTaskHint"));
+      const narrative = executionNarrative(state, context.continuityStatus, context.currentRow, context.summary, hasTask);
+      const next = $("execution-next");
+      next.hidden = !narrative;
+      next.textContent = narrative;
+      const executionState = state.status || context.continuityStatus || "idle";
+      const executionStatus = executionState === "review_ready" ? t("reviewReady")
+        : executionState === "needs_user" ? t("needsUser")
+        : ["blocked_external", "needs_reconcile", "interrupted", "degraded_recovery"].includes(executionState) ? t("blocking")
+        : statusLabel(executionState);
+      $("execution-status").textContent = hasTask ? executionStatus : statusLabel("idle");
+      const doneCount = context.rows.filter((row) => ["done", "completed", "reverification_required"].includes(viewStatus(state, row.node).key)).length;
+      const reverificationCount = context.rows.filter((row) => viewStatus(state, row.node).key === "reverification_required").length;
+      const metrics = [];
+      if (context.rows.length) metrics.push(format("executionStepProgress", { done: doneCount, total: context.rows.length }));
+      if (reverificationCount) metrics.push(format("executionRevalidationProgress", { count: reverificationCount }));
+      if (context.outcomeSummary.passed_proofs) metrics.push(format("executionProofProgress", { passed: context.outcomeSummary.passed_proofs }));
+      if (context.currentRow) {
+        const kind = context.currentRow.node.node_kind || "delivery";
+        metrics.push(nodeKindLabel(kind));
+        const proofView = nodeProofView(state, context.currentRow.node);
+        if (proofView.attempts) metrics.push(t("attemptCount") + " " + proofView.attempts);
+        const verification = (context.summary || {}).verification || {};
+        const metadata = verification.metadata || {};
+        if (verification.node_id === context.currentRow.node.id && values(metadata.scope).length) {
+          metrics.push(t("verificationScope") + " " + values(metadata.scope).join(" · "));
+        }
+        if (verification.node_id === context.currentRow.node.id && metadata.gate) {
+          metrics.push(t("verificationGate") + " " + metadata.gate);
+        }
+      }
+      if (context.openGaps.length) metrics.push(format("executionGapCount", { count: context.openGaps.length }));
+      const transition = state.last_transition || {};
+      if (transition.route && transition.status) {
+        metrics.push(format("transitionStatus", { route: transition.route, status: transition.status }));
+      }
+      $("execution-metrics").innerHTML = metrics.map((item) => "<span>" + esc(item) + "</span>").join("");
+      const projectTitle = localizedValue(frame.title || (managed.summary || {}).title || "") || t("noProjectContext");
+      const records = [
+        [t("executionProject"), projectTitle],
+        [t("executionOutcome"), outcomeTitle || t("executionNoOutcome")],
+        [t("executionBranch"), execution.branch_context || "-"],
+        [t("executionRecord"), taskId || "-"]
+      ];
+      $("execution-records").innerHTML = records.map((item) => "<dt>" + esc(item[0]) + "</dt><dd>" + esc(item[1]) + "</dd>").join("");
+    }
+    function renderControlPlane(state) {
+      const hierarchy = state.hierarchy || {};
+      const contexts = Array.isArray(hierarchy.contexts) ? hierarchy.contexts : [];
+      const managed = hierarchy.managed_context || {};
+      const frame = managed.frame || {};
+      const selected = (managed.summary || {}).id || contexts.find((context) => context.selected)?.id || "";
+      if (!selectedProjectContext && selected) selectedProjectContext = selected;
+      const selector = $("project-context-select");
+      const options = contexts.map((context) => '<option value="' + esc(context.id) + '"' + (context.id === selectedProjectContext ? " selected" : "") + ">" + esc(context.title || context.id) + "</option>").join("");
+      selector.innerHTML = options || '<option value="">' + esc(t("noProjectContext")) + "</option>";
+      selector.disabled = contexts.length < 2;
+      $("project-context-picker").hidden = contexts.length < 2;
+      const selectedContext = contexts.find((context) => context.id === selectedProjectContext) || contexts.find((context) => context.selected) || {};
+      const projectTitle = localizedValue(frame.title || (managed.summary || {}).title || selectedContext.title || "") || t("noProjectContext");
+      $("project-context-name").textContent = projectTitle;
+      $("project-context-name").title = projectTitle;
+      const outcomes = hierarchyOutcomes(hierarchy);
+      const capabilities = Array.isArray(hierarchy.capability_map) ? hierarchy.capability_map : [];
+      const activities = hierarchy.activities || {};
+      const upgrade = hierarchy.control_plane_upgrade || {};
+      const activityCount = typeof activities.count === "number" ? activities.count : ((activities.recent || []).length);
+      const upgradeLabel = upgrade.status && upgrade.status !== "current"
+        ? (t("upgradeStatus")[upgrade.status] || upgrade.status)
+        : "";
+      $("project-overview-summary").textContent = [
+        format("outcomesCount", { count: outcomes.length }),
+        format("capabilitiesCount", { count: capabilities.length }),
+        format("activitiesCount", { count: activityCount }),
+        upgradeLabel
+      ].filter(Boolean).join(" · ");
+      $("project-overview-description").textContent = localizedValue(frame.mission || frame.delivery_boundary || "") || t("projectOverviewFallback");
+      const gate = state.intake_gate || { status: "unobserved" };
+      const intake = gate.intake || {};
+      const stateKey = gate.status || "unobserved";
+      const tone = stateKey === "authorized" ? "authorized" : stateKey === "pending" ? "pending" : (stateKey === "awaiting_user" || stateKey === "awaiting_confirmation" ? "waiting" : "");
+      const copy = intakeCopy(stateKey, Number(intake.pending_decision_count || 0));
+      const panel = $("intake-panel");
+      panel.className = "intake-panel " + tone;
+      panel.innerHTML = '<div class="intake-copy"><h2>' + esc(t("intakePlain")) + '</h2><p>' + esc(copy.message) + '</p></div><span class="intake-state">' + esc(copy.badge) + "</span>";
+    }
+    function outcomeRows(outcomes) {
+      const byId = new Map();
+      const children = new Map();
+      const roots = [];
+      outcomes.forEach((outcome) => { if (outcome && outcome.id) byId.set(outcome.id, outcome); });
+      outcomes.forEach((outcome) => {
+        if (!outcome || !outcome.id) return;
+        if (outcome.parent_id && byId.has(outcome.parent_id)) {
+          if (!children.has(outcome.parent_id)) children.set(outcome.parent_id, []);
+          children.get(outcome.parent_id).push(outcome);
+        } else roots.push(outcome);
+      });
+      const rows = [];
+      const visited = new Set();
+      function visit(outcome, depth) {
+        if (!outcome || visited.has(outcome.id)) return;
+        visited.add(outcome.id);
+        rows.push({ outcome, depth });
+        (children.get(outcome.id) || []).forEach((child) => visit(child, depth + 1));
+      }
+      roots.forEach((outcome) => visit(outcome, 0));
+      outcomes.forEach((outcome) => visit(outcome, 0));
+      return rows;
+    }
+    function renderHierarchy(state) {
+      const hierarchy = state.hierarchy || {};
+      const graph = hierarchy.outcome_graph || {};
+      const outcomes = Array.isArray(graph.outcomes) ? graph.outcomes : [];
+      const rows = outcomeRows(outcomes);
+      $("outcome-count").textContent = format("outcomesCount", { count: outcomes.length });
+      $("outcome-graph").innerHTML = rows.length ? rows.map((row) => {
+        const outcome = row.outcome;
+        const relations = Array.isArray(outcome.relations) ? outcome.relations : [];
+        const relationText = relations.length ? t("outcomeRelations") + ": " + relations.map((relation) => (relation.type || "-") + " -> " + (relation.target_id || "-")).join(" · ") : "";
+        return '<li class="hierarchy-row" data-status="' + esc(outcome.status || "proposed") + '" style="--outcome-depth:' + row.depth + '"><div><h3>' + esc(outcome.title || outcome.id) + '</h3><p>' + esc(outcome.statement || "") + '</p></div><span class="row-status">' + esc(statusLabel(outcome.status || "proposed")) + '</span>' + (relationText ? '<div class="row-relations">' + esc(relationText) + "</div>" : "") + "</li>";
+      }).join("") : '<li class="empty-plane">' + esc(t("noOutcomes")) + "</li>";
+      const capabilities = Array.isArray(hierarchy.capability_map) ? hierarchy.capability_map : [];
+      $("capability-count").textContent = format("capabilitiesCount", { count: capabilities.length });
+      $("capability-map").innerHTML = capabilities.length ? capabilities.map((capability) => {
+        const outcomes = Array.isArray(capability.improves_outcomes) ? capability.improves_outcomes.join(" · ") : "";
+        return '<article class="capability-row"><div><h3>' + esc(capability.title || capability.id) + '</h3><p>' + esc(capability.statement || "") + (outcomes ? " · " + esc(outcomes) : "") + '</p></div><span class="row-meta">' + esc(statusLabel(capability.status || "active")) + "</span></article>";
+      }).join("") : '<div class="empty-plane">' + esc(t("noCapabilities")) + "</div>";
+      const activities = ((hierarchy.activities || {}).recent || []);
+      const activityCount = typeof (hierarchy.activities || {}).count === "number" ? hierarchy.activities.count : activities.length;
+      $("activity-count").textContent = format("activitiesCount", { count: activityCount });
+      $("activity-list").innerHTML = activities.length ? activities.map((activity) => {
+        const paths = Array.isArray(activity.paths) ? activity.paths.join(" · ") : "";
+        const validation = Array.isArray(activity.validation) ? activity.validation.join(" · ") : "";
+        return '<article class="activity-row"><div><h3>' + esc(activity.summary || activity.id) + '</h3><p>' + esc(paths) + (validation ? " · " + esc(validation) : "") + '</p></div><span class="row-meta">' + esc(activity.result || "-") + "</span></article>";
+      }).join("") : '<div class="empty-plane">' + esc(t("noActivities")) + "</div>";
+    }
+    function renderArchivePoints(points) {
+      const panel = $("archive-points");
+      panel.hidden = !points.length;
+      if (!points.length) {
+        panel.innerHTML = "";
+        return;
+      }
+      panel.innerHTML = '<p class="section-label">' + esc(t("workspacePoints")) + "</p>" + points.map((entry) => {
+        const checkpoint = entry && entry.checkpoint ? entry.checkpoint : entry || {};
+        const recordStatus = entry.status || entry.record_status || "recorded";
+        const scope = Array.isArray(checkpoint.scope) && checkpoint.scope.length ? checkpoint.scope.join(", ") : "-";
+        const proofs = Array.isArray(checkpoint.proof_refs) && checkpoint.proof_refs.length ? checkpoint.proof_refs.join(", ") : "-";
+        const taskIds = Array.isArray(entry.task_ids) && entry.task_ids.length ? entry.task_ids.join(", ") : (checkpoint.task_id || "-");
+        const title = checkpoint.receipt || entry.subject || entry.ref || "-";
+        const metadata = [
+          archivePointStatusLabel(recordStatus),
+          entry.ref ? "ref=" + entry.ref : "",
+          t("archivePointScope") + "=" + scope,
+          t("archivePointProofs") + "=" + proofs,
+          t("archivePointTask") + "=" + taskIds,
+          checkpoint.scope_sha256 ? t("archivePointDigest") + "=" + checkpoint.scope_sha256 : "",
+          entry.created_at || checkpoint.created_at || "",
+        ].filter(Boolean).join(" · ");
+        return '<div class="archive-point ' + esc(recordStatus) + '"><div><div class="archive-point-title">' + esc(title) + '</div><span class="archive-point-meta">' + esc(metadata) + "</span></div></div>";
+      }).join("");
+    }
+    function render(state) {
+      latest = state;
+      applyLocale();
+      const continuity = state.continuity || {};
+      const goal = continuity.goal || {};
+      const plan = continuity.plan || {};
+      const nodes = plan.nodes && plan.nodes.length ? plan.nodes : (continuity.legacy_nodes || []);
+      const projection = buildProjection(nodes);
+      const rows = projection.rows;
+      const currentId = continuity.current_node || "";
+      const focus = focusIds(projection, currentId);
+      const openGaps = (continuity.gaps || []).filter((gap) => gap.status === "open");
+      const unattributedActions = Array.isArray(state.unattributed_actions) ? state.unattributed_actions : [];
+      const gapsByNode = groupGaps(openGaps);
+      const status = state.continuity_status || "legacy";
+      const connection = $("connection");
+      const legacy = status === "legacy";
+      const reviewReady = state.status === "review_ready" || status === "review_ready";
+      const blocked = status === "blocked_external" || status === "needs_user" || status === "interrupted" || status === "degraded_recovery";
+      connection.className = "connection " + (reviewReady ? "review" : (legacy || blocked || status === "needs_reconcile" ? "stale" : "live"));
+      connection.textContent = reviewReady ? t("reviewReady") : legacy ? t("legacy") : status === "blocked_external" ? t("externalBlocked") : status === "needs_user" ? t("needsUser") : status === "interrupted" ? t("interrupted") : status === "degraded_recovery" ? t("degradedRecovery") : status === "needs_reconcile" ? t("needsReconcile") : transport === "polling" ? t("polling") : t("realtime");
+      const goalText = localizedValue(goal.statement || state.task) || t("noTask");
+      $("goal").textContent = goalText;
+      $("goal").title = goalText;
+      const currentRow = currentId ? projection.rowById.get(currentId) : null;
+      const currentView = currentRow ? viewStatus(state, currentRow.node) : null;
+      const summary = state.continuity_summary || {};
+      const outcomeSummary = state.outcome_summary || {};
+      renderExecution(state, {
+        continuityStatus: status,
+        currentRow,
+        summary,
+        outcomeSummary,
+        rows,
+        openGaps
+      });
+      $("meta").innerHTML = [
+        '<span class="meta-item"><span class="meta-label">' + esc(t("goalRevision")) + '</span><strong>R' + esc(summary.goal_revision ?? "-") + '</strong><span class="meta-help">' + esc(t("goalRevisionHelp")) + "</span></span>",
+        '<span class="meta-item"><span class="meta-label">' + esc(t("planRevision")) + '</span><strong>R' + esc(summary.plan_revision ?? "-") + '</strong><span class="meta-help">' + esc(t("planRevisionHelp")) + "</span></span>",
+        '<span class="meta-item"><span class="meta-label">' + esc(t("nodeCount")) + '</span><strong>' + rows.length + "</strong></span>",
+        '<span class="meta-item"><span class="meta-label">' + esc(t("currentFocus")) + '</span><strong>' + esc(currentRow ? currentRow.code : t("noFocus")) + "</strong></span>",
+        '<span class="meta-item"><span class="meta-label">' + esc(t("currentStatus")) + '</span><strong>' + esc(currentView ? statusLabel(currentView.key) : t("noFocus")) + "</strong></span>",
+        '<span class="meta-item"><span class="meta-label">' + esc(t("taskLifecycle")) + '</span><strong>' + esc(statusLabel(state.status || "idle")) + "</strong></span>",
+        '<span class="meta-item"><span class="meta-label">' + esc(t("gapCount")) + '</span><strong>' + openGaps.length + "</strong></span>"
+      ].join("");
+      $("outcome-overview").setAttribute("aria-label", t("outcomeOverview"));
+      $("outcome-overview").innerHTML = [
+        [t("provedOutcomes"), (outcomeSummary.proved_outcomes || 0) + "/" + (outcomeSummary.contracted_outcomes || 0)],
+        [t("passedProofs"), outcomeSummary.passed_proofs || 0],
+        [t("failedProofs"), outcomeSummary.failed_proofs || 0],
+        [t("legacyNodes"), outcomeSummary.legacy_nodes || 0],
+      ].map((entry) => '<div class="outcome-metric"><span>' + esc(entry[0]) + '</span><strong>' + esc(entry[1]) + "</strong></div>").join("");
+      const counts = rows.reduce((result, row) => {
+        const key = viewStatus(state, row.node).key;
+        result[key] = (result[key] || 0) + 1;
+        return result;
+      }, {});
+      const legendOrder = ["reverification_required", "done", "active", "paused", "planned", "blocked", "superseded"];
+      $("legend").innerHTML = legendOrder.filter((key) => counts[key]).map((key) => {
+        return '<span class="' + key + '"><i></i>' + esc(statusLabel(key)) + " " + counts[key] + "</span>";
+      }).join("");
+      const timeline = $("timeline");
+      const expanded = new Set(Array.from(timeline.querySelectorAll("details[open]")).map((detail) => detail.dataset.nodeId));
+      if (!rows.length) {
+        const directOutcome = (state.delivery_contract || {}).outcome;
+        const directNode = directOutcome ? { id: "run", outcome: directOutcome, status: state.status } : null;
+        const directProof = directNode ? nodeProofView(state, directNode) : null;
+        const candidates = Array.isArray(state.task_candidates) ? state.task_candidates : [];
+        timeline.innerHTML = directNode ? '<article class="direct-outcome"><h2>' + esc(t("directOutcome")) + '</h2><p>' + esc(directOutcome.primary) + '</p><div class="node-result"><span class="outcome-kind">' + esc(outcomeKindLabel(directOutcome.kind)) + '</span><span></span><span class="proof-state ' + esc(directProof.key) + '">' + esc(directProof.label) + "</span></div></article>" : candidates.length ? '<article class="direct-outcome"><h2>' + esc(t("candidateTasks")) + '</h2>' + candidates.map((candidate) => '<p><strong>' + esc(candidate.task || candidate.id) + '</strong> · ' + esc(statusLabel(candidate.status || "paused")) + '</p>').join("") + '</article>' : '<div class="empty">' + esc(t("empty")) + "</div>";
+      } else {
+        timeline.innerHTML = rows.map((row) => {
+          const node = row.node;
+          const nodeView = viewStatus(state, node);
+          const proofView = nodeProofView(state, node);
+          const classes = "node " + nodeView.key + (nodeView.current ? " is-current" : "") + (focus.has(node.id) && !nodeView.current ? " is-ancestor" : "");
+          const detailContent = renderNodeDetails(state, row, projection, gapsByNode);
+          const title = detailContent ? '<details class="node-details" data-node-id="' + esc(node.id) + '"><summary class="node-title">' + esc(row.label) + "</summary>" + detailContent + "</details>" : '<div class="node-title">' + esc(row.label) + "</div>";
+          const checkpointChain = renderMilestoneCheckpointChain(state, node, row.code);
+          const rollingMeta = rollingNodeMeta(state, node);
+          const resultLine = node.outcome ? '<div class="node-result"><span class="outcome-kind">' + esc(outcomeKindLabel(node.outcome.kind)) + '</span><span class="outcome-primary">' + esc(node.outcome.primary) + (rollingMeta ? '<span class="detail-meta">' + esc(rollingMeta) + '</span>' : '') + '</span><span class="proof-state ' + esc(proofView.key) + '">' + esc(proofView.label) + "</span></div>" : '<div class="node-result"><span class="proof-state legacy">' + esc(rollingMeta || proofView.label) + "</span></div>";
+          const statusTitle = nodeView.reverificationIssue ? [t("proofRevalidationRequired"), nodeView.reverificationIssue.proof_id, nodeView.reverificationIssue.reason].filter(Boolean).join(" · ") : "";
+          return '<article class="' + classes + '" data-node-id="' + esc(node.id) + '" data-depth="' + row.depth + '" style="--indent:' + (row.depth * 30) + 'px">' +
+            '<div class="node-dot" aria-hidden="true"></div>' +
+            '<div class="node-body"><div class="node-head"><div class="node-context"><div class="node-code">' + esc(row.code) + '</div><div class="node-kind">' + esc(nodeRoleLabel(node)) + '</div></div>' + title + '<div class="node-status"' + (statusTitle ? ' title="' + esc(statusTitle) + '"' : "") + '>' + esc(statusLabel(nodeView.key)) + "</div></div>" + checkpointChain + resultLine + "</div></article>";
+        }).join("");
+        restoreExpanded(expanded);
+      }
+      const gaps = $("gaps");
+      gaps.hidden = !openGaps.length;
+      gaps.innerHTML = openGaps.length ? '<p class="section-label">' + esc(t("unresolvedGaps")) + "</p>" + openGaps.map((gap) => {
+        const row = gap.node_id ? projection.rowById.get(gap.node_id) : null;
+        const prefix = row ? '<strong>' + esc(row.code) + "</strong> " : "";
+        return '<div class="gap ' + (gap.blocking ? "blocking" : "") + '"><div>' + prefix + esc(gap.summary || (locale === "zh" ? "未命名缺口" : "Untitled gap")) + '<span class="gap-meta">' + esc(gap.owner || "agent") + " · " + esc(gap.blocking ? t("blocking") : t("notBlocking")) + "</span></div></div>";
+      }).join("") : "";
+      const unattributed = $("unattributed");
+      unattributed.hidden = !unattributedActions.length;
+      unattributed.innerHTML = unattributedActions.length ? '<p class="section-label">' + esc(t("unattributedActions")) + "</p>" + unattributedActions.map((action) => {
+        const reason = action.reason === "missing_node" ? (locale === "zh" ? "缺少计划节点" : "Missing plan node") : action.reason === "conflicting_nodes" ? (locale === "zh" ? "节点归属冲突" : "Conflicting node attribution") : (locale === "zh" ? "节点已不在当前计划中" : "Node is no longer in the current plan");
+        return '<div class="gap blocking"><div><strong>' + esc(action.action_id || "-") + "</strong> " + esc(action.summary || (locale === "zh" ? "未命名动作" : "Untitled action")) + '<span class="gap-meta">' + esc(reason) + " · " + esc(action.last_at || action.first_at || "-") + "</span></div></div>";
+      }).join("") : "";
+      const verificationIssues = Array.isArray(state.verification_issues) ? state.verification_issues : [];
+      const verificationPanel = $("verification-issues");
+      verificationPanel.hidden = !verificationIssues.length;
+      verificationPanel.innerHTML = verificationIssues.length
+        ? '<p class="section-label">' + esc(t("verificationIssues")) + "</p>" + verificationIssues.map((issue) => '<div class="gap blocking"><div><strong>' + esc(issue.node_id || "-") + "</strong> " + esc(issue.proof_id || issue.kind || "-") + '<span class="gap-meta">' + esc(issue.reason || "-") + "</span></div></div>").join("")
+        : "";
+      const productPanel = $("product-review-summary");
+      const productReceipt = typeof state.product_receipt === "string" ? state.product_receipt.trim() : "";
+      const productReviewVisible = reviewReady && Boolean(productReceipt);
+      productPanel.hidden = !productReviewVisible;
+      productPanel.innerHTML = productReviewVisible
+        ? '<p class="section-label">' + esc(t("productReviewSummary")) + "</p><div class=\"product-review-receipt\">" + esc(productReceipt) + "</div>"
+        : "";
+      const diagnostic = continuity.diagnostic || {};
+      const diagnosticPanel = $("diagnostic-summary");
+      const diagnosticHypotheses = Array.isArray(diagnostic.hypotheses) ? diagnostic.hypotheses : [];
+      const diagnosticObservations = Array.isArray(diagnostic.observations) ? diagnostic.observations : [];
+      const diagnosticLastObservation = diagnosticObservations[diagnosticObservations.length - 1] || {};
+      const diagnosticCaseSearch = diagnostic.case_search || {};
+      const diagnosticReproduction = diagnostic.reproduction || {};
+      const diagnosticResolution = diagnostic.resolution || {};
+      const diagnosticRecovery = diagnostic.recovery || {};
+      diagnosticPanel.hidden = diagnostic.profile !== "deep";
+      diagnosticPanel.innerHTML = diagnostic.profile === "deep"
+        ? '<p class="section-label">' + esc(t("diagnosticSummary")) + "</p>"
+          + '<div class="impact-grid">'
+          + '<div><strong>' + esc(t("diagnosticSymptom")) + '</strong><span>' + esc((diagnostic.symptom || {}).summary || "-") + "</span></div>"
+          + '<div><strong>' + esc(t("diagnosticReproduction")) + '</strong><span>' + esc(diagnosticReproduction.gate || "-") + "</span></div>"
+          + '<div><strong>' + esc(t("diagnosticCases")) + '</strong><span>' + esc((diagnosticCaseSearch.status || "not_run") + " · " + values(diagnosticCaseSearch.candidate_case_ids).length) + "</span></div>"
+          + '<div><strong>' + esc(t("diagnosticResolution")) + '</strong><span>' + esc((diagnosticResolution.outcome || "-") + (diagnosticResolution.fresh === false ? " · stale" : "")) + "</span></div>"
+          + '<div><strong>' + esc(t("diagnosticRecovery")) + '</strong><span>' + esc((diagnosticRecovery.status || "unverified") + (diagnosticRecovery.fresh === false ? " · stale" : "")) + "</span></div>"
+          + '<div><strong>' + esc(t("diagnosticNextProbe")) + '</strong><span>' + esc(diagnostic.next_probe || "-") + "</span></div>"
+          + "</div>"
+          + (diagnosticHypotheses.length
+            ? '<details><summary>' + esc(t("diagnosticHypotheses")) + " · " + diagnosticHypotheses.length + '</summary><ul class="detail-list">'
+              + diagnosticHypotheses.map((item) => '<li><strong>' + esc(item.id || "-") + "</strong> " + esc(item.statement || "-") + '<span class="gap-meta">' + esc(item.effective_status || item.status || "pending") + "</span></li>").join("")
+              + "</ul></details>"
+            : "")
+          + (diagnosticLastObservation.id
+            ? '<div class="gap"><div><strong>' + esc(diagnosticLastObservation.id) + "</strong> " + esc(diagnosticLastObservation.verdict || "-")
+              + '<span class="gap-meta">' + esc(t("expected")) + ": " + esc(diagnosticLastObservation.expected || "-") + " · " + esc(t("actual")) + ": " + esc(diagnosticLastObservation.actual || "-") + "</span></div></div>"
+            : "")
+        : "";
+      const impact = summary.impact || {};
+      const latestImpact = impact.latest || null;
+      const impactPanel = $("impact-summary");
+      impactPanel.hidden = !latestImpact;
+      if (latestImpact) {
+        const targets = latestImpact.targets || {};
+        const targetValues = values(targets.symbols).concat(values(targets.files));
+        const staleReasons = values(latestImpact.stale_reasons);
+        const details = [
+          t("impactTargets") + "=" + (targetValues.join(", ") || "-"),
+          t("impactTests") + "=" + values(latestImpact.affected_tests).length,
+          t("impactPreserve") + "=" + values(latestImpact.preservation_items).length,
+          t("impactUncertainty") + "=" + values(latestImpact.uncertainty).length,
+        ];
+        if (staleReasons.length) details.push(staleReasons.join(", "));
+        impactPanel.innerHTML = '<p class="section-label">' + esc(t("impactSummary")) + '</p><div class="gap ' + (latestImpact.fresh ? "" : "blocking") + '"><div><strong>' + esc(latestImpact.fresh ? t("fresh") : t("stale")) + '</strong> ' + esc(latestImpact.receipt_id || "-") + '<span class="gap-meta">' + esc(details.join(" · ")) + "</span></div></div>";
+      } else {
+        impactPanel.innerHTML = "";
+      }
+      const policy = state.workspace_policy || {};
+      const policyPanel = $("policy-summary");
+      const policyVisible = policy.status === "configured" || policy.status === "unavailable";
+      policyPanel.hidden = !policyVisible;
+      if (policyVisible) {
+        const counts = policy.rule_counts || {};
+        const approvals = policy.approvals || {};
+        const ruleCount = Number(counts.forbidden_paths || 0) + Number(counts.approval_paths || 0) + Number(counts.sensitive_paths || 0);
+        const details = [
+          t("policyRevision") + "=R" + (policy.revision == null ? "-" : policy.revision),
+          t("policyRules") + "=" + ruleCount,
+          t("policyApprovals") + "=" + Number(approvals.fresh_count || 0),
+        ];
+        const title = policy.status === "unavailable" ? t("policyUnavailable") : t("policySummary");
+        if (policy.error) details.push(policy.error);
+        policyPanel.innerHTML = '<p class="section-label">' + esc(t("policySummary")) + '</p><div class="gap ' + (policy.status === "unavailable" ? "blocking" : "") + '"><div><strong>' + esc(title) + '</strong><span class="gap-meta">' + esc(details.join(" · ")) + "</span></div></div>";
+      } else {
+        policyPanel.innerHTML = "";
+      }
+      const checkpoint = continuity.last_checkpoint;
+      const checkpointRow = checkpoint && projection.rowById.get(checkpoint.node_id);
+      $("checkpoint").hidden = !checkpoint;
+      $("checkpoint").innerHTML = checkpoint ? esc(t("checkpoint")) + "：<strong>" + esc(checkpointRow ? checkpointRow.code + " " + checkpointRow.label : checkpoint.node_id) + "</strong> · " + esc(checkpoint.summary) + "<br><span>" + esc(checkpoint.at) + "</span>" : "";
+      const recordedWorkspacePoints = Array.isArray(continuity.workspace_points) ? continuity.workspace_points : [];
+      const archivePoints = Array.isArray(summary.workspace_points) ? summary.workspace_points : recordedWorkspacePoints;
+      renderArchivePoints(archivePoints);
+      renderControlPlane(state);
+      renderHierarchy(state);
+      renderDependencies(state);
+      $("updated").textContent = t("statusUpdate") + " " + (continuity.updated_at || state.started_at || "-") + " · " + t("refresh") + " · " + t("projection") + " · " + t("task") + " " + (state.id || "idle") + " · " + t("workspacePoints") + " " + archivePoints.length;
+    }
+    function setError() {
+      $("connection").className = "connection stale";
+      $("connection").textContent = t("offline");
+    }
+    function apiPath(path) {
+      const query = new URLSearchParams(window.location.search);
+      if (selectedProjectContext) query.set("project_context", selectedProjectContext);
+      const suffix = query.toString();
+      return suffix ? path + "?" + suffix : path;
+    }
+    async function fetchState() {
+      try {
+        if (!sseHealthy) transport = "polling";
+        render(await (await fetch(apiPath("/api/state"), { cache: "no-store" })).json());
+      }
+      catch (_) { setError(); }
+    }
+    function connect() {
+      if (eventSource) eventSource.close();
+      const source = new EventSource(apiPath("/api/events"));
+      eventSource = source;
+      source.onopen = () => { sseHealthy = true; transport = "sse"; if (latest) render(latest); };
+      source.onmessage = (event) => { try { transport = "sse"; render(JSON.parse(event.data)); } catch (_) { setError(); } };
+      source.onerror = () => {
+        sseHealthy = false;
+        setError();
+        source.close();
+        if (eventSource === source) setTimeout(connect, 1500);
+      };
+    }
+    document.querySelectorAll("[data-locale]").forEach((button) => {
+      button.addEventListener("click", () => setLocale(button.dataset.locale));
+    });
+    $("theme-toggle").addEventListener("click", () => setTheme(theme === "dark" ? "light" : "dark"));
+    $("project-context-select").addEventListener("change", (event) => {
+      selectedProjectContext = event.target.value || null;
+      fetchState();
+      connect();
+    });
+    applyLocale();
+    fetchState();
+    connect();
+    setInterval(() => { if (!sseHealthy) fetchState(); }, POLL_INTERVAL_MS);
+  </script>
+</body>
+</html>

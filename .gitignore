@@ -1,0 +1,17 @@
+# Local indexes and test/runtime caches
+.codegraph/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+# macOS metadata
+.DS_Store
+
+# Local runtime output
+*.log
+*.tmp
+.auto-dev/
+.venv/
+dist/
+.env
+.env.*

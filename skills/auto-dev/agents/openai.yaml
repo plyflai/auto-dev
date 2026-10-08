@@ -1,0 +1,7 @@
+interface:
+  display_name: "Auto Dev"
+  short_description: "从低风险Quick Write到Direct与Team Core，并支持滚动Work packet和可选并行worker的开发流程"
+  default_prompt: "使用 $auto-dev 处理软件开发：低风险的一次性小 patch 可走 Quick Write，且不初始化控制面；其他工作先完成仓库调查，再将当前用户 turn 分类为 clear、clarify、deep 或 project-discovery。clear 保持自主执行；只询问真实需要用户决定的事项；只有 deep/project-discovery 需要后续 turn 的 Requirement Baseline 确认。需要时收编缺失或遗留控制面，并按 Project Context -> 递归 Outcome Graph -> Task -> Plan 建模，始终区分 View Focus 与 Execution Focus。交付档位独立选择 Direct 或 Team Core；Team Core 可由单个主 Agent 完成，也可在 Rolling Milestones 编译 Work packet 后按证据启用 parallel-work，且 packet 级 verification、review 和 merge policy 必须基于编译结果派生。只启用有证据支持的风险能力；选择新工具或外部依赖前先解析项目依赖配方，已有有效配方直接复用，只有失败、漂移或明确升级请求时才重新调查。多会话工作持续保存 Intake、Plan、Checkpoint 并在恢复前读取 compact strict status。所有新写入控制面的可读摘要、目标、计划、验收、证据和结论默认使用简体中文；ID、路径、命令、代码符号和用户原文保持原样。"
+
+policy:
+  allow_implicit_invocation: false

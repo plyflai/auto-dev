@@ -1,0 +1,50 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.13']
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install contract test dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+      - name: Python regression tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Shell contract tests
+        run: |
+          for test in skills/auto-dev/scripts/contracts/*test.sh; do
+            bash "$test" || exit 1
+          done
+
+  codegraph:
+    name: CodeGraph 1.1.0 integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '22'
+      - name: Install tested CodeGraph version
+        run: npm install --global @colbymchenry/codegraph@1.1.0
+      - name: Live impact and stale-index checks
+        run: python3 -m unittest discover -s tests -p test_codegraph_live_e2e.py -v

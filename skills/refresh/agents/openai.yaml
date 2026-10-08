@@ -1,0 +1,7 @@
+interface:
+  display_name: "Auto Dev Refresh"
+  short_description: "刷新 Auto Dev，并返回项目与控制面链接"
+  default_prompt: "Use $auto-dev:refresh to verify the current Auto Dev package, Hook/session contract, project task state, control-plane upgrade status, blockers, and next action, then return clickable links for the current project and its Auto Dev control-plane UI."
+
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,31 @@
+{
+  "name": "auto-dev",
+  "version": "1.0.0",
+  "description": "A state-aware software delivery control plane with requirement intake, risk-routed execution, durable continuity, and lifecycle recovery.",
+  "author": {
+    "name": "plyflai"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Auto Dev",
+    "shortDescription": "State-aware software delivery with durable progress",
+    "longDescription": "Clarify software requirements, route delivery by risk, preserve a revisioned project control plane, recover work across sessions and compaction, and keep implementation evidence attached to the active goal.",
+    "developerName": "plyflai",
+    "category": "Engineering",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write",
+      "Hooks"
+    ],
+    "defaultPrompt": [
+      "Use Auto Dev to clarify and deliver this software change.",
+      "Resume this repository from its Auto Dev control plane.",
+      "Show the current Auto Dev goal, progress, blockers, and next action."
+    ],
+    "brandColor": "#24704B"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/plyflai/auto-dev",
+  "homepage": "https://github.com/plyflai/auto-dev"
+}
