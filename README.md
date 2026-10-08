@@ -1,6 +1,8 @@
 # Auto Dev
 
-**A resumable workflow from requirements to verified software delivery.**
+**Your cyber development team.**
+
+**From a one-prompt demo to a larger project you can keep building, testing, and delivering.**
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -8,22 +10,23 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/plyflai/auto-dev)](https://github.com/plyflai/auto-dev/releases/latest)
 
-Auto Dev is a Codex plugin that keeps requirements, implementation, verification, and project progress connected. It combines reusable skills, lifecycle hooks, a local Python CLI, and a read-only progress page. Optional [CodeGraph](https://github.com/colbymchenry/codegraph) integration adds code navigation and impact analysis.
+[Who it is for](#who-it-is-for) · [Capability catalog](#capability-catalog) · [Install](#install)
 
-Workflow instructions and default user-facing records are primarily in Simplified Chinese. The English and Chinese READMEs cover the same features, setup, and limitations.
+A working demo makes an idea tangible. Growing it into a dependable project takes more: refining requirements, coordinating changes, investigating failures, testing each iteration, and carrying decisions forward.
 
-## Why Auto Dev
+**Auto Dev brings those development-team practices to your coding agent.** It starts with your idea, helps you clarify and refine the requirements, turns them into actionable iterations, and guides implementation, verification, and delivery. You keep control of the direction; Auto Dev organizes the engineering work.
 
-| What you get | How Auto Dev supports it |
+Auto Dev is a Codex plugin combining skills, lifecycle hooks, a local Python CLI, and a read-only progress page. Optional [CodeGraph](https://github.com/colbymchenry/codegraph) integration adds code navigation and impact analysis. Workflow instructions and default user-facing records are primarily in Simplified Chinese; both READMEs document the same capabilities and limitations.
+
+## Who it is for
+
+| Your background | How Auto Dev helps |
 | --- | --- |
-| **A workflow that fits the change** | Eligible small patches use Quick Write. Direct handles focused delivery. Team Core adds capabilities when repository evidence shows they are needed. |
-| **A clear point to resume from** | Managed tasks retain their goal, plan, checkpoints, blockers, and next action in `.auto-dev/`. Session hooks restore a compact view when you return to a resumable task. |
-| **Completion backed by verification** | Direct and Team tasks record proof attempts against their outcomes. Applicable checks run after implementation, failed attempts remain visible, and review checks whether evidence is still current. |
-| **Execution checks in the tool path** | In an activated session, supported Hooks check recognized writes against requirement status, task scope, and configured path policies before execution. |
-| **Progress you can inspect** | A local read-only page shows the active goal, plan nodes, verification results, and blockers without requiring you to reconstruct them from chat history. |
-| **Code intelligence when you need it** | CodeGraph can supply affected symbols and tests. Core workflows use Python's standard library and Git; the graph engine is an optional, separately installed tool. |
+| **You do not write code** | Describe the product in your own words. Auto Dev helps uncover missing requirements, explain decisions, break down the work, and present results you can review. |
+| **You understand some development** | Connect the parts you know into a complete workflow, with support for architecture, debugging, testing, and release preparation as the project grows. |
+| **You are an experienced developer** | Use a coordinated workflow for complex engineering: staged refactoring, contract changes, deep debugging, performance verification, parallel work, and long-running project continuity. |
 
-For the detailed behavior, see [workflow routing](skills/auto-dev/references/mode-index.md), [continuity](skills/auto-dev/references/continuity/resume-handoff.md), [verification](skills/auto-dev/references/verification/verification.md), and [Hooks](skills/auto-dev/references/control-plane/lifecycle-hooks.md).
+**Product thinking, architecture, implementation, testing, debugging, collaboration, and delivery—organized around the same project goal.** Small changes can stay lightweight; larger work can draw on the broader capability set below.
 
 ## How the workflow adapts
 
@@ -38,6 +41,112 @@ Auto Dev investigates the repository, resolves requirement gaps that affect the 
 These paths are selected from the task and repository evidence, not from a requirement to run multiple agents. Team Core can run with one agent. Parallel work requires host support and explicit workflow selection. See the [Quick Write boundaries](skills/auto-dev/references/intake/quick-write.md) and [Direct/Team routing](skills/auto-dev/references/execution/execution-router.md).
 
 For managed tasks, implementation is followed by verification and a `review_ready` state. You review the result before final acceptance. If work is interrupted, Auto Dev can resume from its saved task state.
+
+## Capability catalog
+
+This catalog covers the current version’s main product and engineering capabilities. Skills guide the agent, the CLI stores project state and evidence, and hooks perform supported lifecycle checks. Capabilities are selected according to the task and its risks.
+
+**Seven conditional Team capability packs:** `architecture`, `data-contract`, `debug-observability`, `gui`, `release`, `parallel-work`, and `compliance`. See the [selection rules](skills/auto-dev/references/execution/capability-router.md).
+
+GUI verification uses available browser or desktop executors; performance verification reuses project benchmarks; deployment uses existing release procedures; multi-agent execution requires host support. Automated CodeGraph impact analysis requires a separate installation and a current index.
+
+### 1. Requirements and product definition
+
+| Capability | What it covers |
+| --- | --- |
+| [Project discovery](skills/auto-dev/references/intake/requirement-intake.md) | Turn an initial idea into goals, user scenarios, project scope, capability boundaries, and staged outcomes. |
+| [Adaptive requirement clarification](skills/auto-dev/references/intake/requirement-intake.md) | Choose direct execution, focused questions, deeper refinement, or project discovery according to the gaps that affect the result. |
+| [Expert-perspective requirement review](skills/auto-dev/references/intake/requirement-intake.md) | Use repository evidence to surface useful suggestions and distinguish accepted, deferred, excluded, and pending decisions. |
+| [Acceptance and change management](skills/auto-dev/references/intake/outcome-contract.md) | Define success, failure, and boundary scenarios; show requirement changes and preserve scope, non-goals, and inherited constraints. |
+
+### 2. Project organization and iteration planning
+
+| Capability | What it covers |
+| --- | --- |
+| [Project hierarchy](skills/auto-dev/references/intake/requirement-intake.md) | Organize project contexts, durable capabilities, recursive outcomes, tasks, and plans so a project remains decomposable. |
+| [Risk-based workflow selection](skills/auto-dev/references/mode-index.md) | Support read-only investigation, Quick Write, Direct, and Team Core, selecting a workflow from task evidence. |
+| [Rolling milestones](skills/auto-dev/references/execution/rolling-milestones.md) | Keep future milestones focused on goals and acceptance, then detail work packets using current repository facts when execution approaches. |
+| [Dependencies and execution order](skills/auto-dev/references/execution/rolling-milestones.md) | Organize milestones and work packets as a directed acyclic graph with inputs, outputs, write scopes, acceptance, and integration nodes. |
+| [Task and focus management](skills/auto-dev/references/control-plane/state-transitions.md) | Select, pause, resume, switch, or close tasks; separate viewing focus from execution focus and record small-change activities. |
+| [Blockers and replanning](skills/auto-dev/references/execution/capability-router.md) | Record gaps, owners, and next actions; revise the strategy after repeated failures or exhausted budgets while preserving completed work. |
+
+### 3. Code understanding, architecture, and implementation
+
+| Capability | What it covers |
+| --- | --- |
+| [Repository and call-chain investigation](skills/auto-dev/references/control-plane/code-navigation.md) | Locate entry points, symbols, callers, dependencies, and nearby tests with CodeGraph when available, or targeted search and source reads. |
+| [Feature development and maintenance](skills/auto-dev/references/execution/direct.md) | Guide the agent through feature implementation, bug fixes, refactoring, optimization, test additions, and cleanup. |
+| [Architecture boundaries and staged refactoring](skills/auto-dev/references/capabilities/capability-architecture.md) | Define responsibilities, modules, shared abstractions, interfaces, and cross-platform boundaries; migrate callers in verifiable stages with compatibility paths. |
+| [Impact analysis and behavior preservation](skills/auto-dev/references/control-plane/impact-preservation.md) | Use CodeGraph to inspect affected symbols and tests, recording behavior to preserve, validation actions, and unresolved impact. |
+
+### 4. Data, interfaces, and security
+
+| Capability | What it covers |
+| --- | --- |
+| [Data and interface contracts](skills/auto-dev/references/capabilities/capability-data-contract.md) | Manage schema, public API, protocol, and configuration changes with explicit producers, consumers, versions, and error semantics. |
+| [Data migration and compatibility](skills/auto-dev/references/capabilities/capability-data-contract.md) | Plan expand/migrate/contract stages and verify representative data, backups, idempotency, retries, partial failures, and rollback paths. |
+| [Permission, security, and privacy checks](skills/auto-dev/references/capabilities/capability-compliance.md) | Inspect trust boundaries around authentication, permissions, payments, and sensitive data; verify allowed, denied, unauthorized, replay, and audit paths. |
+| [Workspace path policies](skills/auto-dev/references/control-plane/workspace-policy.md) | Configure forbidden, approval-required, and sensitive paths; supported hooks check writes against the current task and policy. |
+
+### 5. Testing, verification, and acceptance
+
+| Capability | What it covers |
+| --- | --- |
+| [Targeted engineering verification](skills/auto-dev/references/verification/verification.md) | Select existing project tests, builds, type checks, or runtime checks to match the change and execute applicable validation after implementation. |
+| [Traceable proof records](skills/auto-dev/references/verification/verification.md) | Record commands, results, and failed attempts; link evidence to outcomes and plans and require revalidation after relevant code or environment changes. |
+| [End-to-end and GUI verification](skills/auto-dev/references/capabilities/capability-gui.md) | Check real user journeys, page states, error feedback, layout, responsive behavior, and data interactions, with screenshots and relevant console/network evidence. |
+| [Performance improvement verification](skills/auto-dev/references/verification/performance-verification.md) | Reuse project benchmarks to compare latency, throughput, resource use, build time, or other metrics repeatedly under the same environment and workload, accounting for noise. |
+| [Integration and milestone review](skills/auto-dev/references/execution/rolling-milestones.md) | Review combined behavior, changed scope, contract coverage, and validation after work packets are integrated before accepting a milestone. |
+| [User-facing product acceptance](skills/auto-dev/references/verification/product-review.md) | Explain completed work, user-visible changes, test entry points, steps, and expected results in product terms; retain unverified items and wait for final acceptance. |
+
+### 6. Debugging and observability
+
+| Capability | What it covers |
+| --- | --- |
+| [Logging and runtime diagnostics](skills/auto-dev/references/control-plane/runtime-diagnostics.md) | Assess, reuse, or extend project logging with key events, correlation IDs, errors, retention locations, and agent-readable access paths. |
+| [Systematic reproduction](skills/auto-dev/references/capabilities/capability-debug-observability.md) | Choose standard or deep debugging based on complexity and retain minimal reproduction, the original failing path, and run/failure data for flaky issues. |
+| [Hypothesis testing and root-cause investigation](skills/auto-dev/references/capabilities/capability-debug-observability.md) | Form falsifiable hypotheses, compare predictions with probe observations, and record confirmed, rejected, or inconclusive conclusions. |
+| [Recovery verification](skills/auto-dev/references/capabilities/capability-debug-observability.md) | Rerun the minimal reproduction, original failing path, and applicable regressions; clean up temporary probes and record verified, failed, or awaiting-confirmation recovery. |
+
+### 7. Tool dependencies and project memory
+
+| Capability | What it covers |
+| --- | --- |
+| [Dependency recipes and version records](skills/auto-dev/references/control-plane/project-memory.md) | Store tool purpose, version combinations, runtime conditions, invocation details, and evidence, distinguishing working, incompatible, preferred, and fallback recipes. |
+| [Dependency reuse and revalidation](skills/auto-dev/references/control-plane/project-memory.md) | Reuse verified recipes and gather new evidence through bounded trials when selecting a tool, encountering failures, detecting environment drift, or upgrading. |
+| [Environment and runtime entry points](skills/auto-dev/references/control-plane/project-memory.md) | Record confirmed working roots, hosts, service endpoints, execution and observation entry points, and GUI executors. |
+| [Domain vocabulary and project knowledge](skills/auto-dev/references/control-plane/project-memory.md) | Preserve stable business terms, invariants, unresolved concepts, durable decisions, and project-specific gotchas. |
+| [Searchable incident cases](skills/auto-dev/references/capabilities/capability-debug-observability.md) | Promote verified, user-confirmed diagnoses and recoveries into searchable cases, then retest relevant lessons against current evidence in later investigations. |
+
+### 8. Multi-agent collaboration and integration
+
+| Capability | What it covers |
+| --- | --- |
+| [Bounded work delegation](skills/auto-dev/references/capabilities/capability-parallel-work.md) | Give independent work packets explicit scopes, inputs, outputs, acceptance checks, protected areas, and conflict ownership. |
+| [Worker context and isolation](skills/auto-dev/references/execution/multi-agent.md) | Prepare isolated Git worktrees and task context capsules, then have the host create or bind real executors. |
+| [Result capture, review, and integration](skills/auto-dev/references/execution/multi-agent.md) | Capture patches within scope, apply results according to dependencies and merge policy, validate before and after integration, and clean up completed workspaces. |
+| [Multi-session write coordination](skills/auto-dev/references/control-plane/lifecycle-hooks.md) | Coordinate branch-scoped writer and observer roles, handle session takeover, and check writes from superseded sessions. |
+
+### 9. Continuity, recovery, and handoff
+
+| Capability | What it covers |
+| --- | --- |
+| [Lifecycle hooks](skills/auto-dev/references/control-plane/lifecycle-hooks.md) | Use SessionStart, UserPromptSubmit, SubagentStart, and PreToolUse to restore context, track requirement turns, pass worker context, and check supported writes. |
+| [Task checkpoints and resumption](skills/auto-dev/references/continuity/resume-handoff.md) | Save goals, plans, current nodes, evidence, blockers, and next actions, then recheck state and continue after a new session or context compaction. |
+| [Handoff export and import](skills/auto-dev/references/continuity/resume-handoff.md) | Transfer task, dependency, and evidence context to the next agent and recheck its validity in the destination environment. |
+| [Existing-project adoption](skills/auto-dev/references/intake/pre-git-control.md) | Inspect and adopt repositories without managed task state; support Git or local no-Git control and migration when prerequisites are met. |
+| [Runtime refresh and state upgrades](skills/auto-dev/references/continuity/legacy-upgrade.md) | Check the package, hooks, and project readiness; support versioned state upgrades, backups, post-upgrade revalidation, and interrupted-upgrade recovery. |
+| [State repair and snapshot management](skills/auto-dev/references/control-plane/cli-contract.md) | Diagnose before applying named repairs, restore tasks or reconcile views, and prune eligible historical snapshots under retention rules. |
+
+### 10. Delivery, release, and visible progress
+
+| Capability | What it covers |
+| --- | --- |
+| [Git archive points and rollback inspection](skills/auto-dev/references/continuity/resume-handoff.md) | Create scoped Git archive points when authorized; rollback inspection reports the target, affected scope, and risks without automatically rewriting the workspace. |
+| [Release coordination and deployment verification](skills/auto-dev/references/capabilities/capability-release.md) | Work with existing CI/CD, scripts, or manual procedures to define environments, versions, authorization, pre-release checks, post-release health checks, and rollback conditions. |
+| [Release evidence and delivery summaries](skills/auto-dev/references/verification/product-review.md) | Record target versions, environments, critical user journeys, rollback status, remaining risks, and next steps against the current deliverable. |
+| [External and long-running action tracking](skills/auto-dev/references/control-plane/action-attribution.md) | Bind device operations, external calls, and long-running actions to plan nodes, recording starts, results, failures, and unresolved actions. |
+| [Local progress page and structured receipts](skills/auto-dev/references/control-plane/receipt-catalog.md) | Show current goals, task hierarchy, timelines, verification, blockers, and next actions, with stable bilingual stage receipts. |
 
 ## What is included
 
