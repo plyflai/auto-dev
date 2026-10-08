@@ -1,12 +1,12 @@
 # Auto Dev
 
-**Your professional cyber development team. Auto Dev is a Codex plugin that includes skills, hooks, a Python CLI, and a task status UI.**
+🤖 **Your professional cyber development team. Auto Dev is a Codex plugin that includes skills, hooks, a Python CLI, and a task status UI.**
 
-From requirements to delivery, whether you write code or not, Auto Dev helps you build large-scale business projects that work in practice and can keep evolving.
+🎯 From requirements to delivery, whether you write code or not, Auto Dev helps you build large-scale business projects that work in practice and can keep evolving.
 
-Generating a good-looking demo from a single prompt is easy. Real business projects still need refined requirements, architecture, development, testing, and ongoing maintenance. They also need to handle the next change.
+🏗️ Generating a good-looking demo from a single prompt is easy. Real business projects still need refined requirements, architecture, development, testing, and ongoing maintenance. They also need to handle the next change.
 
-Auto Dev comes with the core responsibilities and workflows of a professional development team. It breaks your idea into actionable development steps, moves implementation forward, investigates problems, verifies delivery, and continues with the next iteration.
+🔄 Auto Dev comes with the core responsibilities and workflows of a professional development team. It breaks your idea into actionable development steps, moves implementation forward, investigates problems, verifies delivery, and continues with the next iteration.
 
 **English** | [简体中文](README.zh-CN.md)
 
