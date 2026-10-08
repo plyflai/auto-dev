@@ -4,6 +4,8 @@
 
 From requirements to delivery, whether you write code or not, Auto Dev helps you build large-scale business projects that work in practice and can keep evolving.
 
+Auto Dev is a Codex plugin that includes skills, hooks, a Python CLI, and a task status UI.
+
 **English** | [简体中文](README.zh-CN.md)
 
 [![Tests](https://github.com/plyflai/auto-dev/actions/workflows/ci.yml/badge.svg)](https://github.com/plyflai/auto-dev/actions/workflows/ci.yml)
@@ -16,7 +18,7 @@ Generating a good-looking demo from a single prompt is easy. Real business proje
 
 Auto Dev comes with the core responsibilities and workflows of a professional development team. It breaks your idea into actionable development steps, moves implementation forward, investigates problems, verifies delivery, and continues with the next iteration.
 
-Auto Dev is a Codex plugin combining skills, lifecycle hooks, a local Python CLI, and a read-only progress page. Optional [CodeGraph](https://github.com/colbymchenry/codegraph) integration adds code navigation and impact analysis. Workflow instructions and default user-facing records are primarily in Simplified Chinese; both READMEs document the same capabilities and limitations.
+Optional [CodeGraph](https://github.com/colbymchenry/codegraph) integration adds code navigation and impact analysis. Workflow instructions and default user-facing records are primarily in Simplified Chinese; both READMEs document the same capabilities and limitations.
 
 ## Who it is for
 

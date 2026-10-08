@@ -4,6 +4,8 @@
 
 从需求到交付，无论你是否懂代码，Auto Dev 都能帮你开发真正用得起来、能够持续迭代的大型业务项目。
 
+Auto Dev 是一个 Codex 插件，包含 Skill、Hooks、Python CLI 和任务状态 UI。
+
 [English](README.md) | **简体中文**
 
 [![测试](https://github.com/plyflai/auto-dev/actions/workflows/ci.yml/badge.svg)](https://github.com/plyflai/auto-dev/actions/workflows/ci.yml)
@@ -16,7 +18,7 @@
 
 Auto Dev 自带专业开发团队的核心分工和流程，把你的想法拆成一步步可执行的开发工作，推进实现、排查问题、验证交付，再继续下一轮迭代。
 
-Auto Dev 是一个 Codex 插件，包含 Skill、生命周期 Hooks、本地 Python 命令行工具（CLI）和只读进度页面。可选的 [CodeGraph](https://github.com/colbymchenry/codegraph) 集成提供代码导航与影响分析。工作流指令和面向用户的运行记录默认以简体中文为主；中英文 README 包含相同的能力说明与使用限制。
+可选的 [CodeGraph](https://github.com/colbymchenry/codegraph) 集成提供代码导航与影响分析。工作流指令和面向用户的运行记录默认以简体中文为主；中英文 README 包含相同的能力说明与使用限制。
 
 ## 适合谁使用
 
