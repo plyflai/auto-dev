@@ -2,7 +2,7 @@
 
 **你的赛博开发团队。**
 
-**Auto Dev 不是用来做 Demo 的，而是用来开发、迭代和交付真实大项目的。**
+**从需求到交付，陪你把真实的大项目一步步做出来。**
 
 [English](README.md) | **简体中文**
 
@@ -38,7 +38,7 @@ Auto Dev 先调查仓库，补齐影响结果的需求缺口，再选择执行�
 | **Direct：直接执行** | 目标集中的功能实现或修复 | 跟踪用户要求的交付结果，以及证明结果所需的验证。 |
 | **Team Core：团队核心交付** | 有证据表明存在架构、共享契约、集成或其他交付风险的任务 | 启用对应能力；有依据时采用滚动工作包和可选的并行执行者。 |
 
-执行路径由任务和仓库证据决定，不要求必须使用多个 Agent。Team Core 可以由单个 Agent 完成。并行工作需要宿主支持，并在工作流中明确选用。具体条件见 [Quick Write 边界](skills/auto-dev/references/intake/quick-write.md)和 [Direct/Team 路由](skills/auto-dev/references/execution/execution-router.md)。
+执行路径由任务和仓库证据决定。Team Core 可以由单个 Agent 完成。并行工作需要宿主支持，并在工作流中明确选用。具体条件见 [Quick Write 边界](skills/auto-dev/references/intake/quick-write.md)和 [Direct/Team 路由](skills/auto-dev/references/execution/execution-router.md)。
 
 受管任务完成实现后会执行验证，再进入 `review_ready`（待审查）状态。最终验收前，由你检查交付结果。工作中断后，Auto Dev 可以从已保存的任务状态继续。
 

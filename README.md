@@ -2,7 +2,7 @@
 
 **Your cyber development team.**
 
-**Auto Dev isn't built for demos. It's built to develop, iterate on, and deliver real, large-scale projects.**
+**Build real, large-scale projects step by step, from requirements to delivery.**
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -38,7 +38,7 @@ Auto Dev investigates the repository, resolves requirement gaps that affect the 
 | **Direct** | A focused implementation or fix | Track the requested outcome and the verification needed to establish it. |
 | **Team Core** | Work with evidenced architecture, shared-contract, integration, or other delivery risks | Enable the relevant capabilities; use rolling work packets and optional parallel workers when justified. |
 
-These paths are selected from the task and repository evidence, not from a requirement to run multiple agents. Team Core can run with one agent. Parallel work requires host support and explicit workflow selection. See the [Quick Write boundaries](skills/auto-dev/references/intake/quick-write.md) and [Direct/Team routing](skills/auto-dev/references/execution/execution-router.md).
+These paths are selected from the task and repository evidence. Team Core can run with one agent. Parallel work requires host support and explicit workflow selection. See the [Quick Write boundaries](skills/auto-dev/references/intake/quick-write.md) and [Direct/Team routing](skills/auto-dev/references/execution/execution-router.md).
 
 For managed tasks, implementation is followed by verification and a `review_ready` state. You review the result before final acceptance. If work is interrupted, Auto Dev can resume from its saved task state.
 
