@@ -1,10 +1,43 @@
 # Auto Dev
 
-A Codex plugin for software delivery with requirement intake, risk-based execution, lifecycle hooks, and resumable project state.
+**A resumable workflow from requirements to verified software delivery.**
 
-Auto Dev keeps the user's goal, plan, verification evidence, and next action together. It supports small patches, direct implementation, and larger tasks with optional team capabilities. The plugin includes a local Python CLI, a read-only progress page, and an optional integration with [CodeGraph](https://github.com/colbymchenry/codegraph) for code navigation and impact analysis.
+**English** | [简体中文](README.zh-CN.md)
 
-主要工作流使用中文。Auto Dev 会先补齐影响交付的需求缺口，再按真实风险选择执行方式，并通过 Hook 恢复上下文、检查写入边界。
+[![Tests](https://github.com/plyflai/auto-dev/actions/workflows/ci.yml/badge.svg)](https://github.com/plyflai/auto-dev/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/plyflai/auto-dev)](https://github.com/plyflai/auto-dev/releases/latest)
+
+Auto Dev is a Codex plugin that keeps requirements, implementation, verification, and project progress connected. It combines reusable skills, lifecycle hooks, a local Python CLI, and a read-only progress page. Optional [CodeGraph](https://github.com/colbymchenry/codegraph) integration adds code navigation and impact analysis.
+
+Workflow instructions and default user-facing records are primarily in Simplified Chinese. The English and Chinese READMEs cover the same features, setup, and limitations.
+
+## Why Auto Dev
+
+| What you get | How Auto Dev supports it |
+| --- | --- |
+| **A workflow that fits the change** | Eligible small patches use Quick Write. Direct handles focused delivery. Team Core adds capabilities when repository evidence shows they are needed. |
+| **A clear point to resume from** | Managed tasks retain their goal, plan, checkpoints, blockers, and next action in `.auto-dev/`. Session hooks restore a compact view when you return to a resumable task. |
+| **Completion backed by verification** | Direct and Team tasks record proof attempts against their outcomes. Applicable checks run after implementation, failed attempts remain visible, and review checks whether evidence is still current. |
+| **Execution checks in the tool path** | In an activated session, supported Hooks check recognized writes against requirement status, task scope, and configured path policies before execution. |
+| **Progress you can inspect** | A local read-only page shows the active goal, plan nodes, verification results, and blockers without requiring you to reconstruct them from chat history. |
+| **Code intelligence when you need it** | CodeGraph can supply affected symbols and tests. Core workflows use Python's standard library and Git; the graph engine is an optional, separately installed tool. |
+
+For the detailed behavior, see [workflow routing](skills/auto-dev/references/mode-index.md), [continuity](skills/auto-dev/references/continuity/resume-handoff.md), [verification](skills/auto-dev/references/verification/verification.md), and [Hooks](skills/auto-dev/references/control-plane/lifecycle-hooks.md).
+
+## How the workflow adapts
+
+Auto Dev investigates the repository, resolves requirement gaps that affect the result, and selects an execution path:
+
+| Path | Suitable work | What happens |
+| --- | --- | --- |
+| **Quick Write** | A bounded, low-risk patch to existing text files | Make the change and run targeted validation. No Task or Plan is created. |
+| **Direct** | A focused implementation or fix | Track the requested outcome and the verification needed to establish it. |
+| **Team Core** | Work with evidenced architecture, shared-contract, integration, or other delivery risks | Enable the relevant capabilities; use rolling work packets and optional parallel workers when justified. |
+
+These paths are selected from the task and repository evidence, not from a requirement to run multiple agents. Team Core can run with one agent. Parallel work requires host support and explicit workflow selection. See the [Quick Write boundaries](skills/auto-dev/references/intake/quick-write.md) and [Direct/Team routing](skills/auto-dev/references/execution/execution-router.md).
+
+For managed tasks, implementation is followed by verification and a `review_ready` state. You review the result before final acceptance. If work is interrupted, Auto Dev can resume from its saved task state.
 
 ## What is included
 
@@ -51,7 +84,7 @@ Use one source for the `plyflai-auto-dev` marketplace. The local-checkout comman
 Open the project you want to work on, then explicitly select the skill or use:
 
 ```text
-$auto-dev:auto-dev 帮我修复这个项目的登录问题，并验证修复结果。
+$auto-dev:auto-dev Fix the login issue in this project and verify the fix.
 ```
 
 To inspect runtime and project readiness before resuming:
@@ -133,7 +166,7 @@ done
 
 Tests use temporary project fixtures. The live CodeGraph test runs when `codegraph` is installed and otherwise reports a skip. CI runs the core suite separately from the live CodeGraph integration test. Static checks and unit tests do not establish compatibility with every Codex host version; report the host version and observed behavior in installation issues.
 
-Contributions are welcome through issues and pull requests. Include a reproducible example and validation for changed behavior. Keep project data and secrets out of reports.
+Contributions are welcome through issues and pull requests. Include a reproducible example and validation for changed behavior. Keep project data and secrets out of reports. Update both README language versions when changing shared documentation.
 
 ## License
 
