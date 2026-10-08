@@ -1,8 +1,8 @@
 # Auto Dev
 
-**Your cyber development team.**
+**Your professional cyber development team.**
 
-**Build real, large-scale projects step by step, from requirements to delivery.**
+From requirements to delivery, whether you write code or not, Auto Dev helps you build large-scale business projects that work in practice and can keep evolving.
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -12,9 +12,9 @@
 
 [Who it is for](#who-it-is-for) · [Capability catalog](#capability-catalog) · [Install](#install)
 
-**Auto Dev helps you develop real projects as if you had a professional development team.** It organizes the work a large project needs: refining requirements, planning architecture and iterations, implementing features, testing, debugging, and delivering.
+Generating a good-looking demo from a single prompt is easy. Real business projects still need refined requirements, architecture, development, testing, and ongoing maintenance. They also need to handle the next change.
 
-**Whether you do not write code, know some development, or are an experienced developer, Auto Dev helps you keep your project moving.** You describe the goal; Auto Dev helps clarify, break down, and refine the requirements, then guides each iteration. Requirement decisions, task progress, and verification records can be preserved to inform future work. You set the product direction; Auto Dev brings professional development-team practices to your coding agent.
+Auto Dev comes with the core responsibilities and workflows of a professional development team. It breaks your idea into actionable development steps, moves implementation forward, investigates problems, verifies delivery, and continues with the next iteration.
 
 Auto Dev is a Codex plugin combining skills, lifecycle hooks, a local Python CLI, and a read-only progress page. Optional [CodeGraph](https://github.com/colbymchenry/codegraph) integration adds code navigation and impact analysis. Workflow instructions and default user-facing records are primarily in Simplified Chinese; both READMEs document the same capabilities and limitations.
 
