@@ -210,8 +210,16 @@ def _progress_state(url: str | None) -> tuple[dict[str, Any] | None, dict[str, A
 
 
 def _verify_progress(url: str | None, task_id: str) -> bool:
-    health, state = _progress_state(url)
-    return bool(health and state and health.get("status") == "ok" and state.get("id") == task_id)
+    if not url:
+        return False
+    # The progress server may briefly cache the task active before this transition.
+    deadline = time.monotonic() + 3
+    while time.monotonic() < deadline:
+        health, state = _progress_state(url)
+        if health and state and health.get("status") == "ok" and state.get("id") == task_id:
+            return True
+        time.sleep(0.05)
+    return False
 
 
 def _verify_ready_transition(url: str | None, task_id: str, request_id: str) -> bool:

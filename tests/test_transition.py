@@ -12,11 +12,64 @@ import tempfile
 import unittest
 import urllib.request
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
+from unittest import mock
 
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 CLI = PLUGIN_ROOT / "skills" / "auto-dev" / "scripts" / "auto_dev.py"
+sys.path.insert(0, str(CLI.parent))
+
+from auto_dev_internal import transition as transition_module
+from auto_dev_internal.foundation import progress as progress_module
+
+
+class TransitionProgressReadbackTest(unittest.TestCase):
+    def clock(self) -> tuple[SimpleNamespace, list[float]]:
+        elapsed = [0.0]
+
+        def advance(seconds: float) -> None:
+            elapsed[0] += seconds
+
+        return SimpleNamespace(monotonic=lambda: elapsed[0], sleep=advance), elapsed
+
+    def test_progress_readback_waits_for_cached_previous_task(self) -> None:
+        clock, elapsed = self.clock()
+        current = {"id": "previous-task"}
+        snapshots = progress_module.ProgressSnapshotStore(
+            fingerprint=lambda _session: current["id"],
+            payload=lambda _session, _context: dict(current),
+            identity=lambda: {"task_id": current["id"]},
+        )
+
+        def readback(_url):
+            snapshot = snapshots.snapshot(session_key=None, project_context_id=None)
+            return {"status": "ok"}, snapshot.payload
+
+        with mock.patch.object(progress_module, "time", clock), mock.patch.object(
+            transition_module, "time", clock
+        ), mock.patch.object(transition_module, "_progress_state", side_effect=readback):
+            readback(None)
+            current["id"] = "next-task"
+            self.assertEqual(readback(None)[1]["id"], "previous-task")
+            self.assertTrue(transition_module._verify_progress("http://fixture/", "next-task"))
+            self.assertEqual(readback(None)[1]["id"], "next-task")
+            self.assertLessEqual(elapsed[0], 3.1)
+
+    def test_progress_readback_rejects_persistent_unavailable_or_wrong_state(self) -> None:
+        for readback in (
+            (None, None),
+            ({"status": "ok"}, {"id": "previous-task"}),
+            ({"status": "unavailable"}, {"id": "next-task"}),
+        ):
+            with self.subTest(readback=readback):
+                clock, elapsed = self.clock()
+                with mock.patch.object(transition_module, "time", clock), mock.patch.object(
+                    transition_module, "_progress_state", return_value=readback
+                ):
+                    self.assertFalse(transition_module._verify_progress("http://fixture/", "next-task"))
+                    self.assertLessEqual(elapsed[0], 3.1)
 
 
 class TransitionTest(unittest.TestCase):
