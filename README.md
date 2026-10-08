@@ -1,10 +1,12 @@
 # Auto Dev
 
-**Your professional cyber development team.**
+**Your professional cyber development team. Auto Dev is a Codex plugin that includes skills, hooks, a Python CLI, and a task status UI.**
 
 From requirements to delivery, whether you write code or not, Auto Dev helps you build large-scale business projects that work in practice and can keep evolving.
 
-Auto Dev is a Codex plugin that includes skills, hooks, a Python CLI, and a task status UI.
+Generating a good-looking demo from a single prompt is easy. Real business projects still need refined requirements, architecture, development, testing, and ongoing maintenance. They also need to handle the next change.
+
+Auto Dev comes with the core responsibilities and workflows of a professional development team. It breaks your idea into actionable development steps, moves implementation forward, investigates problems, verifies delivery, and continues with the next iteration.
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -13,10 +15,6 @@ Auto Dev is a Codex plugin that includes skills, hooks, a Python CLI, and a task
 [![Release](https://img.shields.io/github/v/release/plyflai/auto-dev)](https://github.com/plyflai/auto-dev/releases/latest)
 
 [Who it is for](#who-it-is-for) · [Capability catalog](#capability-catalog) · [Install](#install)
-
-Generating a good-looking demo from a single prompt is easy. Real business projects still need refined requirements, architecture, development, testing, and ongoing maintenance. They also need to handle the next change.
-
-Auto Dev comes with the core responsibilities and workflows of a professional development team. It breaks your idea into actionable development steps, moves implementation forward, investigates problems, verifies delivery, and continues with the next iteration.
 
 Optional [CodeGraph](https://github.com/colbymchenry/codegraph) integration adds code navigation and impact analysis. Workflow instructions and default user-facing records are primarily in Simplified Chinese; both READMEs document the same capabilities and limitations.
 

@@ -1,10 +1,12 @@
 # Auto Dev
 
-**你的专业赛博开发团队。**
+**你的专业赛博开发团队。Auto Dev 是一个 Codex 插件，包含 Skill、Hooks、Python CLI 和任务状态 UI。**
 
 从需求到交付，无论你是否懂代码，Auto Dev 都能帮你开发真正用得起来、能够持续迭代的大型业务项目。
 
-Auto Dev 是一个 Codex 插件，包含 Skill、Hooks、Python CLI 和任务状态 UI。
+一句话生成好看的 Demo 已经很容易；但真实业务还需要打磨需求、规划架构、开发测试和长期维护，也要接得住下一次改动。
+
+Auto Dev 自带专业开发团队的核心分工和流程，把你的想法拆成一步步可执行的开发工作，推进实现、排查问题、验证交付，再继续下一轮迭代。
 
 [English](README.md) | **简体中文**
 
@@ -13,10 +15,6 @@ Auto Dev 是一个 Codex 插件，包含 Skill、Hooks、Python CLI 和任务状
 [![版本](https://img.shields.io/github/v/release/plyflai/auto-dev)](https://github.com/plyflai/auto-dev/releases/latest)
 
 [适合谁使用](#适合谁使用) · [完整能力清单](#完整能力清单) · [安装](#安装)
-
-一句话生成好看的 Demo 已经很容易；但真实业务还需要打磨需求、规划架构、开发测试和长期维护，也要接得住下一次改动。
-
-Auto Dev 自带专业开发团队的核心分工和流程，把你的想法拆成一步步可执行的开发工作，推进实现、排查问题、验证交付，再继续下一轮迭代。
 
 可选的 [CodeGraph](https://github.com/colbymchenry/codegraph) 集成提供代码导航与影响分析。工作流指令和面向用户的运行记录默认以简体中文为主；中英文 README 包含相同的能力说明与使用限制。
 
